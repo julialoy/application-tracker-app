@@ -16,23 +16,29 @@ const isPasswordValid = (pword, pwordConfirm) => {
 
 // Routes here
 app.post('/register', (req, res) => {
+   const userFirstName = req.body.firstName;
+   const userLastName = req.body.lastName;
    const email = req.body.email;
-   const username = req.body.email;             // Using email for both username and email fields
    const userpass = req.body.pword;
    const userpassConfirm = req.body.pwordConfirm;
    if (isPasswordValid(userpass, userpassConfirm)) {
-       model.addUser(username, userpass, email)
+       model.addUser(email, userFirstName, userLastName, userpass)
            .then(result => {
-               res.status(201).setHeader('content-type', 'application/json')
-                   .json(result);
+               if (result.error) {
+                   res.status(400).setHeader('content-type', 'application/json')
+                       .json({error: "An account with that email already exists"});
+               } else {
+                   res.status(201).setHeader('content-type', 'application/json')
+                       .json(result.user);
+               }
            })
            .catch(error => {
                res.status(500).setHeader('content-type', 'application/json')
-                   .json({Error: "Unable to complete registration"});
+                   .json({error: "Unable to complete registration"});
            });
    } else {
-       res.status(400).setHeader('content-type', 'applicaiton/json')
-           .json({Error: "Invalid password supplied"});
+       res.status(400).setHeader('content-type', 'application/json')
+           .json({error: "Invalid password supplied"});
    }
 });
 
