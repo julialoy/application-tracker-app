@@ -13,28 +13,39 @@ const pool = new Pool({
     max: 10
 });
 
-const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
-    const findUserQuery = {
-        text: 'SELECT * FROM "Users" where email = $1',
-        values: [userEmail],
-        rowMode: 'array'
-    };
-    const existsResult = await pool.query(findUserQuery);
-    if (existsResult.rows.length > 0) {
-        return {error: "User already exists."};
+// test postgresql connection and print out error if connection fails
+const testConnection = async () => {
+    try {
+        const res = await pool.query('SELECT NOW()');
+        console.log(res.rows[0]);
+        return true;
+    } catch(err) {
+        console.error(`Error testing the database connection: ${err.stack}`);
+        return false;
     }
+};
 
-    const addUserQuery = {
-        text: 'INSERT INTO "Users"(email, first_name, last_name, pass) VALUES($1, $2, $3, $4) RETURNING *',
-        values: [userEmail, userFirstName, userLastName, userPass],
-        rowMode: 'array'
-    };
-    const result = await pool.query(addUserQuery);
+// Call the function
+testConnection();
+
+const authenticateUser = async (username, password) => {
+    const result = await pool.query(
+        'SELECT * FROM Users WHERE email = $1 AND pass = $2',
+        [username, password]
+    );
+
     if (result.rows.length > 0) {
-        return {user: result.rows[0]};
+        return result.rows[0];
     } else {
-        return {error: "Unable to create user."}
+        return null;
     }
+};
+
+
+const addUser = async (username, userPass, userEmail) => {
+    const result = await pool.query('INSERT INTO Users(username, pass, email) VALUES ($1, $2, $3) RETURNING *',
+        [username, userPass, userEmail]);
+    return (result.rows.length > 0);
 }
 
-export { addUser };
+export { pool, addUser, authenticateUser };
