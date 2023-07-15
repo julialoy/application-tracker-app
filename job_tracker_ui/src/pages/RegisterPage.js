@@ -6,8 +6,6 @@ export const RegisterPage = () => {
     const [email, setEmail] = useState('');
     const [pword, setPword] = useState('');
     const [pwordConfirm, setPwordConfirm] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
 
     const navigate = useNavigate();
 
@@ -15,13 +13,11 @@ export const RegisterPage = () => {
         setEmail('');
         setPword('');
         setPwordConfirm('');
-        setFirstName('');
-        setLastName('');
     }
 
     const registerUser = async (evt) => {
         evt.preventDefault();
-        const newUser = {email, pword, pwordConfirm, firstName, lastName};
+        const newUser = {email, pword, pwordConfirm};
         const response = await fetch('/register', {
             method: 'POST',
             body: JSON.stringify(newUser),
@@ -32,9 +28,6 @@ export const RegisterPage = () => {
         if (response.status === 201) {
             alert("Registration successful");
             navigate('/');
-        } else if (response.status === 400) {
-            alert("One or more of the fields were invalid or an account with that email already exists");
-            resetRegForm();
         } else {
             alert("Error encountered during registration. Try again.");
             resetRegForm();
@@ -43,33 +36,9 @@ export const RegisterPage = () => {
 
     return (
         <div>
-            <form id="regForm" onSubmit={registerUser}>
-                <label htmlFor="userFirstName">
-                    First Name *
-                </label>
-                <input
-                    id="userFirstName"
-                    type="text"
-                    name="lastName"
-                    placeholder="First name"
-                    value={firstName}
-                    onChange={evt => setFirstName(evt.target.value)}
-                    required
-                />
-                <label htmlFor="userLastName">
-                    Last Name *
-                </label>
-                <input
-                    id="userLastName"
-                    type="text"
-                    name="firstName"
-                    placeholder="Last Name"
-                    value={lastName}
-                    onChange={evt => setLastName(evt.target.value)}
-                    required
-                />
+            <form id="regForm">
                 <label htmlFor="userEmail">
-                    Email *
+                    Email address
                 </label>
                 <input
                     id="userEmail"
@@ -81,7 +50,7 @@ export const RegisterPage = () => {
                     required
                 />
                 <label htmlFor="userPassword">
-                    Password *
+                    Password
                 </label>
                 <input
                     id="userPassword"
@@ -93,7 +62,7 @@ export const RegisterPage = () => {
                     required
                 />
                 <label htmlFor="passConfirm">
-                    Verify Password *
+                    Retype password
                 </label>
                 <input
                     id="passConfirm"
@@ -107,6 +76,7 @@ export const RegisterPage = () => {
                 <button
                     id="regSubmit"
                     type="submit"
+                    onClick={registerUser}
                 >
                     Register
                 </button>
