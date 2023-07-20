@@ -5,11 +5,12 @@ import Navbar from '../components/navbar/Navbar';
 function JobPage() {
     const [jobs, setJobs] = useState([]);
     const [newJob, setNewJob] = useState({
-        title: '',
-        company: '',
+        job_title: '',
+        company_id: '',
         location: '',
         status: '',
-        skills: '',
+        date_applied: '',
+        notes: '',
     });
     const [editingJob, setEditingJob] = useState(null);
 
@@ -32,32 +33,32 @@ function JobPage() {
                 // add the newly created job to the jobs list
                 setJobs([...jobs, response.data]);
                 // reset newJob state
-                setNewJob({ title: '', company: '', location: '', status: '', skills: '' });
+                setNewJob({ job_title: '', company_id: '', location: '', status: '', date_applied: '', notes: '' });
             })
             .catch(error => {
                 console.error(error);
             });
     };
 
-    const deleteJob = (id) => {
+    const deleteJob = (job_id) => {
         // delete request to delete a job
-        axios.delete(`/jobs/${id}`)
+        axios.delete(`/jobs/${job_id}`)
             .then(response => {
                 // remove the deleted job from the jobs list
-                setJobs(jobs.filter((job) => job.id !== id));
+                setJobs(jobs.filter((job) => job.job_id !== job_id));
             })
             .catch(error => {
                 console.error(error);
             });
     };
 
-    const updateJob = (event, id) => {
+    const updateJob = (event, job_id) => {
         event.preventDefault();
         // put request to update a job
-        axios.put(`/jobs/${id}`, editingJob)
+        axios.put(`/jobs/${job_id}`, editingJob)
             .then(response => {
                 // update the updated job in the jobs list
-                setJobs(jobs.map(job => job.id === id ? editingJob : job));
+                setJobs(jobs.map(job => job.job_id === job_id ? editingJob : job));
                 // reset editingJob state
                 setEditingJob(null);
             })
@@ -91,7 +92,6 @@ function JobPage() {
                 <input type="text" value={newJob.skills} onChange={e => setNewJob({ ...newJob, skills: e.target.value })} placeholder="Skills" />
                 <input type="date" value={newJob.date} onChange={e => setNewJob({ ...newJob, date: e.target.value })} placeholder="Date" />
                 <input type="text" value={newJob.notes} onChange={e => setNewJob({ ...newJob, notes: e.target.value })} placeholder="Notes" />
-                <button type="submit">Create Job</button>
                 <button type="submit">Create Job</button>
             </form>
             {/* list of jobs */}
