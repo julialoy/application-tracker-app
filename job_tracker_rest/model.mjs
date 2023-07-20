@@ -1,5 +1,8 @@
 import 'dotenv/config';
 import { createRequire } from 'module';
+import express from 'express';
+const app = express();
+app.use(express.json());
 
 const require = createRequire(import.meta.url);
 const { Pool } = require('pg');
@@ -12,6 +15,18 @@ const pool = new Pool({
     password: process.env.DB_PASS,
     max: 10
 });
+
+const authenticateUser = async (username, password) => {
+    const result = await pool.query(
+        'SELECT * FROM "Users" WHERE email = $1 AND pass = $2',
+        [username, password]);
+    if (result.rows.length > 0) {
+        return result.rows[0]; // return the user if found
+    } else {
+        return null; // or some other value to indicate no user found
+    }
+    }
+
 
 const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
     const findUserQuery = {
@@ -37,4 +52,11 @@ const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
     }
 }
 
-export { addUser };
+
+
+app.get('/skills', (req, res) => {
+    res.render('skills');
+});
+
+
+export { pool, addUser,authenticateUser};
