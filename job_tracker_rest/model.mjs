@@ -1,5 +1,8 @@
 import 'dotenv/config';
 import { createRequire } from 'module';
+import express from 'express';
+const app = express();
+app.use(express.json());
 
 const require = createRequire(import.meta.url);
 const { Pool } = require('pg');

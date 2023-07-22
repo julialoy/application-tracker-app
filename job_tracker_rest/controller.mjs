@@ -11,6 +11,11 @@ console.log(secret);
 const PORT = process.env.PORT;
 const app = express();
 app.use(express.json());
+app.use(expressSession({
+    secret: secret,
+    resave: false,
+    saveUninitialized: true
+}));
 
 // Validation logic here
 const isPasswordValid = (pword, pwordConfirm) => {
@@ -92,6 +97,10 @@ app.post('/login', (req, res) => {
         console.error(`Caught exception: ${err}`); // Logging any caught exceptions
         res.status(500).json({ error: 'Server error.' });
     }
+});
+
+app.get('/', (req, res) => {
+    res.render('home');
 });
 
 // Fetch all jobs for the logged in user
@@ -243,7 +252,7 @@ app.delete('/pages/contacts/:contact_id',ensureLoggedIn, (req, res) => {
     );
 });
 
-app.get('/skills', (req, res ) => {
+app.get('/skills', ensureLoggedIn, (req, res ) => {
     const userId = req.session.user.user_id;
     model.getSkills(userId)
         .then(result => {
