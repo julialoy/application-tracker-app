@@ -1,0 +1,14 @@
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+tr, td {
+    padding-right: 2em;
+}
+
+button {
+    padding-right: 0.7em;
+}

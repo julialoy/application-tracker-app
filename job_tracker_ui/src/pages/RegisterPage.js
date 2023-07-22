@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const RegisterPage = () => {
@@ -28,11 +27,11 @@ export const RegisterPage = () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-        })
+        });
         if (response.status === 201) {
             alert("Registration successful");
-            navigate('/');
-        } else if (response.status === 400) {
+            navigate('/jobs');
+        } else if  (response.status === 400){
             alert("One or more of the fields were invalid or an account with that email already exists");
             resetRegForm();
         } else {

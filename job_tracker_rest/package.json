@@ -4,7 +4,7 @@
   "description": "",
   "main": "controller.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha tests/unit.test.mjs",
     "start": "nodemon controller.mjs"
   },
   "author": "",
@@ -15,6 +15,9 @@
     "express-async-handler": "^1.2.0",
     "express-validator": "^7.0.1",
     "nodemon": "^3.0.1",
-    "pg": "^8.11.1"
+    "pg": "^8.11.1",
+    "react-bootstrap": "^2.8.0",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
   }
 }

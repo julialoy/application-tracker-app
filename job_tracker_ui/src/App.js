@@ -1,3 +1,4 @@
+import './App.css';
 import React from 'react';
 import { Routes } from 'react-router';
 import { BrowserRouter, Route } from 'react-router-dom';
@@ -12,6 +13,11 @@ export const App = () => {
           <Routes>
               <Route path="/" element={<HomePage />} exact />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/jobs" element={<JobPage />} />
+              <Route path="/skills" element={<SkillsPage />} />
+              <Route path="/contacts" element={<ContactPage />} />
+              <Route path="/skills" element={<SkillsPage />} />
           </Routes>
       </BrowserRouter>
      </div>
