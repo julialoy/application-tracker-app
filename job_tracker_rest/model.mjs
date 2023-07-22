@@ -21,7 +21,6 @@ const authenticateUser = async (username, password) => {
         'SELECT * FROM "Users" WHERE email = $1 AND pass = $2',
         [username, password]);
     if (result.rows.length > 0) {
-        console.log("AUTHENTICATED: ", result.rows[0]);
         return result.rows[0]; // return the user if found
     } else {
         return null; // or some other value to indicate no user found

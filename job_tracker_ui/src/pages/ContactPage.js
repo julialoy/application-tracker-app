@@ -2,7 +2,9 @@ import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../components/navbar/Navbar';
 
+
 export default ContactPage;
+
 
 function ContactPage() {
   const [contacts, setContacts] = useState([]);
