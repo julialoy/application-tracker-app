@@ -4,6 +4,10 @@ import { Routes } from 'react-router';
 import { BrowserRouter, Route } from 'react-router-dom';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import JobPage from './pages/JobPage';
+import SkillsPage from './pages/SkillsPage';
+import ContactPage from './pages/ContactPage';
 
 export const App = () => {
 

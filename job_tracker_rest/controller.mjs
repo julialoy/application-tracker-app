@@ -2,6 +2,7 @@ import 'dotenv/config';
 import * as model from './model.mjs';
 import express from 'express';
 import crypto from 'crypto';
+
 import expressSession from 'express-session';
 
 const secret = crypto.randomBytes(64).toString('hex');
@@ -16,6 +17,12 @@ app.use(expressSession({
     resave: false,
     saveUninitialized: true
 }));
+
+app.use(expressSession({
+    secret: secret,
+    resave: false,
+    saveUninitialized: true
+  }));
 
 // Validation logic here
 const isPasswordValid = (pword, pwordConfirm) => {
@@ -82,7 +89,6 @@ app.post('/login', (req, res) => {
         model.authenticateUser(email, password)
             .then(user => {
                 if (user) {
-                    console.log(user);
                     req.session.user = user;
                     res.redirect('/');
                 } else {

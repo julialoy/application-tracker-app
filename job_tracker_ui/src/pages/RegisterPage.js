@@ -42,7 +42,7 @@ export const RegisterPage = () => {
 
     return (
         <div>
-            <form id="regForm" onSubmit={registerUser}>
+            <form onSubmit={registerUser}>
                 <label htmlFor="userFirstName">
                     First Name *
                 </label>
@@ -58,6 +58,7 @@ export const RegisterPage = () => {
                 <label htmlFor="userLastName">
                     Last Name *
                 </label>
+
                 <input
                     id="userLastName"
                     type="text"
@@ -69,6 +70,7 @@ export const RegisterPage = () => {
                 />
                 <label htmlFor="userEmail">
                     Email *
+                    Email address
                 </label>
                 <input
                     id="userEmail"
@@ -81,6 +83,7 @@ export const RegisterPage = () => {
                 />
                 <label htmlFor="userPassword">
                     Password *
+                    Password
                 </label>
                 <input
                     id="userPassword"
@@ -106,6 +109,7 @@ export const RegisterPage = () => {
                 <button
                     id="regSubmit"
                     type="submit"
+                    onClick={registerUser}
                 >
                     Register
                 </button>
