@@ -10,7 +10,7 @@ export const Skills = ({ skill, onSkillDelete }) => {
             <td>{skill.skill_desc}</td>
             <td>
                 <button type="button">Edit</button>
-                <button type="button" onClick={() => onSkillDelete(skill.user_id)}>Delete</button>
+                <button type="button" onClick={() => onSkillDelete(skill.skill_id)}>Delete</button>
             </td>
         </tr>
     );
