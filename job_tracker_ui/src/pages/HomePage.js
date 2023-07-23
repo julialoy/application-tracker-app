@@ -1,13 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import Navbar from '../components/navbar/Navbar';
 
 export const HomePage = () => {
     return (
         <div>
-            <p>Under Construction</p>
+            <Navbar />
+            <Header />
             <Link to="/register">Register</Link>
             <br />
-            <Link to="/login">log in</Link>
+            <Link to="/login">Log in</Link>
+            <Footer />
         </div>
     );
 }

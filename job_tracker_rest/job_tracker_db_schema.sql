@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public."Jobs"
     status character varying(255) NOT NULL,
     location character varying(255) NOT NULL,
     user_id serial NOT NULL,
-    company_id serial NOT NULL,
+    company character varying(255) NOT NULL,
     PRIMARY KEY (job_id)
 );
 
@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS public."Skills"
 (
     skill_id serial NOT NULL,
     skill_title character varying(255) NOT NULL,
+    skill_desc character varying(255),
     user_id serial NOT NULL,
     PRIMARY KEY (skill_id),
     CONSTRAINT skill_title UNIQUE (skill_title)
@@ -52,16 +53,8 @@ CREATE TABLE IF NOT EXISTS public."Contacts"
     email character varying(255) NOT NULL,
     notes character varying(255),
     user_id serial NOT NULL,
-    company_id serial NOT NULL,
+    company character varying(255),
     PRIMARY KEY (contact_id)
-);
-
-CREATE TABLE IF NOT EXISTS public."Companies"
-(
-    company_id serial NOT NULL,
-    name character varying(255) NOT NULL,
-    address character varying(255),
-    PRIMARY KEY (company_id)
 );
 
 CREATE TABLE IF NOT EXISTS public."Jobs_Contacts"
@@ -73,14 +66,6 @@ CREATE TABLE IF NOT EXISTS public."Jobs_Contacts"
 ALTER TABLE IF EXISTS public."Jobs"
     ADD CONSTRAINT user_id FOREIGN KEY (user_id)
     REFERENCES public."Users" (user_id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
-
-
-ALTER TABLE IF EXISTS public."Jobs"
-    ADD CONSTRAINT company_id FOREIGN KEY (company_id)
-    REFERENCES public."Companies" (company_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
@@ -113,14 +98,6 @@ ALTER TABLE IF EXISTS public."Skills_Jobs"
 ALTER TABLE IF EXISTS public."Contacts"
     ADD CONSTRAINT user_id FOREIGN KEY (user_id)
     REFERENCES public."Users" (user_id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
-
-
-ALTER TABLE IF EXISTS public."Contacts"
-    ADD CONSTRAINT company_id FOREIGN KEY (company_id)
-    REFERENCES public."Companies" (company_id) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

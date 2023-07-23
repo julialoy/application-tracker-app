@@ -3,7 +3,6 @@ import * as model from './model.mjs';
 import express from 'express';
 import crypto from 'crypto';
 
-
 import expressSession from 'express-session';
 
 const secret = crypto.randomBytes(64).toString('hex');
@@ -13,6 +12,11 @@ console.log(secret);
 const PORT = process.env.PORT;
 const app = express();
 app.use(express.json());
+app.use(expressSession({
+    secret: secret,
+    resave: false,
+    saveUninitialized: true
+}));
 
 app.use(expressSession({
     secret: secret,
@@ -27,7 +31,25 @@ const isPasswordValid = (pword, pwordConfirm) => {
     return (pword === pwordConfirm && pword.length >= 8);
 };
 
+function ensureLoggedIn(req, res, next) {
+    if (req.session.user) {
+        // User is logged in, proceed to the next middleware/route handler
+        console.log("User is logged in");
+        console.log(req.session.user.user_id);
+        next();
+    } else {
+        // User is not logged in
+        // Send an error response or redirect to a login page
+        res.status(401).json({ error: 'User not logged in' });
+    }
+}
+
+app.get('/', (req, res) => {
+    res.render('home');
+});
+
 // Routes here
+
 app.post('/register', (req, res) => {
    const userFirstName = req.body.firstName;
    const userLastName = req.body.lastName;
@@ -37,14 +59,16 @@ app.post('/register', (req, res) => {
    if (isPasswordValid(userpass, userpassConfirm)) {
        model.addUser(email, userFirstName, userLastName, userpass)
            .then(result => {
-            if (result.error) {
-                res.status(400).setHeader('content-type', 'application/json')
-                    .json({error: "An account with that email already exists"});
-            } else {
-                res.status(201).setHeader('content-type', 'application/json')
-                    .json(result.user);
-            }
-           })
+                if (result.error) {
+                    res.status(400).setHeader('content-type', 'application/json')
+                        .json({error: "An account with that email already exists"});
+                } else {
+                    // Upon successful registration user is logged in
+                    req.session.user = result;
+                    res.status(201).setHeader('content-type', 'application/json')
+                        .json(result);
+                }
+               })
            .catch(error => {
                res.status(500).setHeader('content-type', 'application/json')
                    .json({error: "Unable to complete registration"});
@@ -81,24 +105,9 @@ app.post('/login', (req, res) => {
     }
 });
 
-function ensureLoggedIn(req, res, next) {
-    if (req.session.user) {
-      // User is logged in, proceed to the next middleware/route handler
-      console.log("User is logged in");
-      console.log(req.session.user.user_id);
-      next();
-    } else {
-      // User is not logged in
-      // Send an error response or redirect to a login page
-      res.status(401).json({ error: 'User not logged in' });
-    }
-  }
-
 app.get('/', (req, res) => {
     res.render('home');
 });
-
-
 
 // Fetch all jobs for the logged in user
 app.get('/jobs', ensureLoggedIn, (req, res) => {
@@ -249,8 +258,81 @@ app.delete('/pages/contacts/:contact_id',ensureLoggedIn, (req, res) => {
     );
 });
 
+app.get('/skills', ensureLoggedIn, (req, res ) => {
+    const userId = req.session.user.user_id;
+    model.getSkills(userId)
+        .then(result => {
+            if (result.error) {
+                res.status(400).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to retrieve skills"});
+            } else {
+                res.status(201).setHeader('content-type', 'application/json')
+                    .json(result.skills);
+            }
+            })
+            .catch(error => {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to retrieve skills"});
+        });
+});
+
+app.post('/skills', ensureLoggedIn, (req, res) => {
+    const skillTitle = req.body.newSkillTitle;
+    const skillDesc = req.body.newSkillDesc;
+    const userId = req.session.user.user_id;
+    model.addSkill(skillTitle, skillDesc, userId)
+        .then(result => {
+            if (result.error) {
+                res.status(400).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to add skill."});
+            } else {
+                res.status(201).setHeader('content-type', 'application/json')
+                    .json(result.skills);
+            }
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({error: "Unable to add skill."});
+        });
+});
+
+app.post('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
+    const skillId = req.params.skill_id;
+    const newSkillTitle = req.body.newSkillTitle;
+    model.editSkill(newSkillTitle, skillId)
+        .then(result => {
+            if (result.error) {
+                res.status(400).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to edit skill."});
+            } else {
+                res.status(201).setHeader('content-type', 'application/json')
+                    .json(result.skills);
+            }
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({error: "Unable to update skill"});
+        });
+});
+
+app.delete('/skills/:skill_id', ensureLoggedIn, (req, res) => {
+   const skillId = req.params.skill_id;
+   model.deleteSkill(skillId)
+       .then(result => {
+           if (result.error) {
+               res.status(400).setHeader('content-type', 'application/json')
+                   .json({error: "Unable to delete skill."});
+           } else {
+               res.status(204).setHeader('content-type', 'application/json')
+                   .json(result.skills);
+           }
+       })
+       .catch(error => {
+           res.status(500).setHeader('content-type', 'application/json')
+               .json({error: "Unable to delete skill"});
+       });
+});
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}...`);
 });
-
