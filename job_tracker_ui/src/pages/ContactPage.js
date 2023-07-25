@@ -58,9 +58,9 @@ function ContactPage() {
 
   return (
     <div>
-      <h1>Networking Page</h1>
       <div>
             <Navbar />
+            <h1>Networking Page</h1>
         </div>
 
       <form onSubmit={addContact}>

@@ -1,0 +1,62 @@
+/* Ensures navbar bg is all the way to top and left/right of page*/
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: #3b5998;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    color: white;
+}
+
+.logo {
+    height: 50px;
+}
+
+.nav-links-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.nav-links {
+    list-style-type: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    text-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    font-family: Inter;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}
+
+.nav-links a:hover {
+    color: #9b9b9b; 
+}
+
+.nav-links a.active {
+    color: yellow;
+    border: 2px solid yellow;
+    padding: 3px;
+}
+
+.profile-btn {
+    right: 40px; /* adjust as necessary */
+}
+
+.profile-btn img {
+    /* adjust width/height as needed */
+    width: 46px;
+    height: 53px;
+}
