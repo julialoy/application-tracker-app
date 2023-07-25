@@ -1,15 +1,27 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import './Navbar.css';
 
 const Navbar = () => {
+    const location = useLocation();
+
     return (
-        <nav>
-            <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/jobs">Jobs</Link></li>
-                <li><Link to="/skills">Skills</Link></li>
-                <li><Link to="/contacts">Contacts</Link></li>
-            </ul>
+        <nav className="header">
+            <Link to="/">
+                <img src="/TJTLogo.png" alt="logo" className="logo" />
+            </Link>
+            <div className="nav-links-wrapper">
+                <ul className="nav-links">
+                    <li><Link to="/" className={location.pathname === "/" ? "active" : ""}>HOME</Link></li>
+                    <li><Link to="/jobs" className={location.pathname === "/jobs" ? "active" : ""}>JOBS</Link></li>
+                    <li><Link to="/skills" className={location.pathname === "/skills" ? "active" : ""}>SKILLS</Link></li>
+                    <li><Link to="/contacts" className={location.pathname === "/contacts" ? "active" : ""}>NETWORKING</Link></li>
+                </ul>
+            </div>
+
+            <Link to="/editprofile" className={location.pathname === "/editprofile" ? "active profile-btn" : "profile-btn"}>
+                <img src="/EditProfile.png" alt="Profile" />
+            </Link>
         </nav>
     );
 }
