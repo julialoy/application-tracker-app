@@ -3,7 +3,7 @@ import React from 'react';
 export const SkillsHeader = () => {
     return (
         <div>
-            <h1>Skills</h1>
+            <h1>My Skills</h1>
         </div>
     );
 }
