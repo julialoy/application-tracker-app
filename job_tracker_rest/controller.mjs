@@ -298,8 +298,9 @@ app.post('/skills', ensureLoggedIn, (req, res) => {
 
 app.post('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
     const skillId = req.params.skill_id;
-    const newSkillTitle = req.body.newSkillTitle;
-    model.editSkill(newSkillTitle, skillId)
+    const editSkillTitle = req.body.editSkillTitle;
+    const editSkillDesc = req.body.editSkillDesc;
+    model.editSkill(skillId, editSkillTitle, editSkillDesc)
         .then(result => {
             if (result.error) {
                 res.status(400).setHeader('content-type', 'application/json')

@@ -2,15 +2,15 @@
 // as well as from official React documentation
 import React from 'react';
 
-export const Skills = ({ skill, onSkillDelete }) => {
+export const Skills = ({ skill, onSkillEdit, onSkillDelete }) => {
 
     return (
         <tr>
             <td>{skill.skill_title}</td>
-            <td>TBA</td>
+            <td>{skill.num_jobs}</td>
             <td>{skill.skill_desc}</td>
             <td>
-                <button type="button">Edit</button>
+                <button type="button" onClick={() => onSkillEdit(skill.skill_id)}>Edit</button>
                 <button type="button" onClick={() => onSkillDelete(skill.skill_id)}>Delete</button>
             </td>
         </tr>

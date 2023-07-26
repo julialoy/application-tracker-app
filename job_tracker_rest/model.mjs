@@ -27,6 +27,23 @@ const authenticateUser = async (username, password) => {
     }
 }
 
+// Calculates number of jobs each skill is tagged in and adds that property to skills object
+const countJobsPerSkill = async (skills) => {
+    for (let i = 0; i < skills.length; i++) {
+        let currSkillId = skills[i].skill_id;
+        const getNumJobsPerSkill = {
+            text: 'SELECT * FROM "Skills_Jobs" WHERE "Skills_skill_id" = $1',
+            values: [currSkillId]
+        }
+        const result = await pool.query(getNumJobsPerSkill);
+        if (result.rows) {
+            skills[i].num_jobs = result.rows.length
+        } else {
+            skills[i].num_jobs = 0;
+        }
+    }
+}
+
 const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
     const getUserByEmailQuery = {
         text: 'SELECT * FROM "Users" WHERE email = $1',
@@ -57,6 +74,7 @@ const getSkills = async (userId) => {
     };
     const result = await pool.query(getSkillsByUserQuery);
     if (result.rows) {
+        await countJobsPerSkill(result.rows);   // Add num_jobs property to each skill
         return {skills: result.rows};
     } else {
         return {error: "Unable to retrieve skills."};
@@ -76,16 +94,16 @@ const addSkill = async (skillTitle, skillDesc, userId) => {
     }
 }
 
-const editSkill = async (editedSkillTitle, skillId) => {
+const editSkill = async (skillId, editedSkillTitle, editedSkillDesc) => {
     const editSkillQuery = {
-        text: 'UPDATE "Skills" SET skill_title = $1 WHERE skill_id = $3 RETURNING *',
-        values: [editedSkillTitle, skillId]
+        text: 'UPDATE "Skills" SET skill_title = $2, skill_desc = $3 WHERE skill_id = $1 RETURNING *',
+        values: [skillId, editedSkillTitle, editedSkillDesc]
     }
     const result = await pool.query(editSkillQuery);
     if (result.rows) {
-        console.log(result);
+        return {skills: result.rows};
     } else {
-        console.log("Couldn't update skill");
+        return {error: "Unable to update skill"};
     }
 }
 
