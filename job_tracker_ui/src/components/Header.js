@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Header = () => {
     return (
-        <div>
+        <div className="PageHeader">
             <h1>Welcome to <br/> the Job Tracker</h1>
         </div>
     );
