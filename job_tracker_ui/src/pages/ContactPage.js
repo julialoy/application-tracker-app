@@ -60,7 +60,7 @@ function ContactPage() {
     <div>
       <div>
             <Navbar />
-            <h1>Networking Page</h1>
+            <h1 className="PageHeader">Networking Page</h1>
         </div>
 
       <form onSubmit={addContact}>

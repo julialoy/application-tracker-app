@@ -1,0 +1,130 @@
+/* Styles for the SkillsPage */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.SkillsPage {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Styles for the New Skill button */
+.new-skill-button {
+    padding: 10px 20px;
+    margin: 0 auto;  /* center the button */
+    margin-bottom: 50px;
+    display: block;  /* required for centering elements with margin */
+    background-color: #1CCA00;
+    color: #000000;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.new-skill-button:hover {
+    background-color: #22ff00;
+}
+
+/* Styles for the form inside the Popup */
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;  /* Centers form content */
+        background-color: #f0f0f0; /* Light grey background */
+        gap: 10px; /* Adds space between form elements */
+        padding: 20px;
+        background-color: #f0f0f0;
+        border-radius: 15px;
+    }
+
+    form label {
+        font-size: .75em;
+        color: #24292e;
+    }
+
+    #skillTitle {
+        padding: 10px;
+        width: 40%;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background-color: #fff; /* White input boxes */
+    }
+
+    #skillDesc { 
+        padding: 10px;
+        width: 40%;
+        height: 50px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background-color: #fff; /* White input boxes */
+    }
+
+    /* Line under h2 on form */
+    hr {
+        width: 40%;  /* length of line */
+        border: none;
+        border-top: 2px solid #30497f;  /* Color and thickness */
+    }
+
+    form h2 {
+        margin-bottom: 0px;
+        color: #3b5998;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    form p {
+        margin-top: 0px; /* Adjust as needed */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+
+    /* Styles for the Add Skill button inside the form */
+    #skillSubmit {
+        padding: 10px 20px;
+        background-color: #3b5998;
+        color: #fafbfc;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #skillSubmit:hover {
+        background-color: #30497f;
+    }
+
+/* Styles for the table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    background-color: #3b5998;
+    color: #fafbfc;
+    padding: 10px;
+}
+  
+table td {
+    padding: 10px;
+    text-align: center;
+}
+
+/* Style for odd table rows */
+table tr:nth-child(odd) {
+    background-color: #f2f2f2; /* Light grey */
+}
+
+/* Style for even table rows */
+table tr:nth-child(even) {
+    background-color: #e0e0e0; /* Darker grey */
+}
+
+/* Hover style for table rows */
+table tr:hover {
+    background-color: #d0d0d0; /* Even darker grey on hover */
+}

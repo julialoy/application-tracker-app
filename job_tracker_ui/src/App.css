@@ -12,3 +12,26 @@ tr, td {
 button {
     padding-right: 0.7em;
 }
+
+/* Styles for Page Headers */
+.PageHeader {
+    color: #3b5998;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #fafbfc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .PageHeader h1 {
+    font-size: 2em;
+    margin: 0;
+  }
+  
+/* Styles for Edit/Delete buttons within tables */
+.edit-button {
+    margin-right: 2px;
+}
+
+.delete-button {
+    margin-left: 2px;
+}

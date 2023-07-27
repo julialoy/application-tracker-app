@@ -75,7 +75,7 @@ function JobPage() {
     return (
         <div>
             <Navbar />
-            <h1>Job Page</h1>
+            <h1 className="PageHeader">Job Page</h1>
             {/* form to create a new job */}
             <form onSubmit={createJob}>
                 <input type="text" value={newJob.title} onChange={e => setNewJob({ ...newJob, title: e.target.value })} placeholder="Job title" required />

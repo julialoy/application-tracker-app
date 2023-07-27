@@ -4,6 +4,7 @@ import Navbar from '../components/navbar/Navbar';
 import SkillsHeader from '../components/Skills/SkillsHeader';
 import Skills from '../components/Skills/Skills';
 import Modal from 'react-modal';
+import './SkillsPage.css';
 
 // Sets parent element of Modal so screen readers work correctly upon modal open
 Modal.setAppElement(document.getElementById('root'));
@@ -82,67 +83,72 @@ export const SkillsPage = ({ setTargetSkill }) => {
         <div>
             <Navbar />
             <SkillsHeader />
-            <button type="button"
-                    onClick={handleOpenAddModal}>
-                New Skill
-            </button>
-            <Modal
-                isOpen={isAddOpen}
-                onRequestClose={handleCloseAddModal}
-                portalClassName={""}
-                shouldCloseOnEsc={true}
-                preventScroll={true}
-            >
-                <form onSubmit={addNewSkill}>
-                    <label htmlFor="skillTitle">
-                        Skill Title
-                    </label>
-                    <input
-                        id="skillTitle"
-                        type="text"
-                        name="newSkillTitle"
-                        placeholder="Skill title"
-                        value={newSkillTitle}
-                        onChange={evt => setNewSkillTitle(evt.target.value)}
-                        required
-                    />
-                    <label htmlFor="skillDesc">
-                        Skill Description
-                    </label>
-                    <input
-                        id="skillDesc"
-                        type="text"
-                        name="newSkillDesc"
-                        placeholder="Skill Description"
-                        value={newSkillDesc}
-                        onChange={evt => setNewSkillDesc(evt.target.value)}
-                    />
-                    <button id="skillSubmit" type="submit">Add Skill</button>
-                </form>
-            </Modal>
-            <div>
-                <table id="skills">
-                    <thead>
-                    <tr>
-                        <th>Skill</th>
-                        <th># of Jobs</th>
-                        <th>Details</th>
-                        <th>Edit/Delete</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {/*
-                    Iterates over the skills objects in skillsList and sends to Skills
-                    component to dynamically render each table row.
-                    */}
-                        { skillsList.map((skill, i) => <Skills skill={skill}
-                                                               key={'skill-' + i.toString()}
-                                                               onSkillEdit={onSkillEdit}
-                                                               onSkillDelete={onSkillDelete}
-                        />)}
-                    </tbody>
-                </table>
+            <div className="SkillsPage">
+                <button type="button" className="new-skill-button"
+                        onClick={handleOpenAddModal}>
+                    New Skill
+                </button>
+                <Modal
+                    isOpen={isAddOpen}
+                    onRequestClose={handleCloseAddModal}
+                    portalClassName={""}
+                    shouldCloseOnEsc={true}
+                    preventScroll={true}
+                >
+                    <form onSubmit={addNewSkill}>
+                        <h2>Add a New Skill</h2>
+                        <hr /> {/* line */}
+                        <p>Enter your new Skill and a Description</p>
+                        <label htmlFor="skillTitle">
+                            Skill Title
+                        </label>
+                        <input
+                            id="skillTitle"
+                            type="text"
+                            name="newSkillTitle"
+                            placeholder="Skill title"
+                            value={newSkillTitle}
+                            onChange={evt => setNewSkillTitle(evt.target.value)}
+                            required
+                        />
+                        <label htmlFor="skillDesc">
+                            Skill Description
+                        </label>
+                        <input
+                            id="skillDesc"
+                            type="text"
+                            name="newSkillDesc"
+                            placeholder="Skill Description"
+                            value={newSkillDesc}
+                            onChange={evt => setNewSkillDesc(evt.target.value)}
+                        />
+                        <button id="skillSubmit" type="submit">Add Skill</button>
+                    </form>
+                </Modal>
+                <div>
+                    <table id="skills">
+                        <thead>
+                        <tr>
+                            <th>Skill</th>
+                            <th># of Jobs</th>
+                            <th>Details</th>
+                            <th>Edit/Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {/*
+                        Iterates over the skills objects in skillsList and sends to Skills
+                        component to dynamically render each table row.
+                        */}
+                            { skillsList.map((skill, i) => <Skills skill={skill}
+                                                                key={'skill-' + i.toString()}
+                                                                onSkillEdit={onSkillEdit}
+                                                                onSkillDelete={onSkillDelete}
+                            />)}
+                        </tbody>
+                    </table>
 
+                </div>
             </div>
         </div>
     )
