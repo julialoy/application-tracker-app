@@ -3,8 +3,8 @@ import '../../App.css'
 
 export const SkillsHeader = () => {
     return (
-        <div className="PageHeader">
-            <h1>My Skills</h1>
+        <div>
+            <h1 className="PageHeader">My Skills</h1>
         </div>
     );
 }
