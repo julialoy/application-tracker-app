@@ -1,43 +1,92 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/navbar/Navbar';
+import Modal from 'react-modal';
+
+Modal.setAppElement(document.getElementById('root'));
 
 function JobPage() {
     const [jobs, setJobs] = useState([]);
+    const [skills, setSkills] = useState([]);
+    const [isAddOpen, setIsAddOpen] = useState(false);
     const [newJob, setNewJob] = useState({
         job_title: '',
-        company_id: '',
+        company: '',
         location: '',
         status: '',
         date_applied: '',
         notes: '',
+        skills: [],
     });
     const [editingJob, setEditingJob] = useState(null);
+    const navigate = useNavigate();
 
     // fetch jobs from server
     useEffect(() => {
         axios.get('/jobs')
             .then(response => {
-                setJobs(response.data);
+                // For each job, fetch its associated skills
+                const jobsWithSkillsPromises = response.data.map(job => 
+                    axios.get(`/jobs/${job.job_id}/skills`)
+                        .then(res => {
+                            return { ...job, skills: res.data || []}
+                        })
+                );
+                Promise.all(jobsWithSkillsPromises)
+                .then(jobsWithSkills => {
+                    setJobs(jobsWithSkills)
+                })
+                .catch(error => console.error(error));
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }, []);
+    
+
+    // fetch skills from server
+    useEffect(() => {
+        axios.get('/skills')
+            .then(response => {
+                setSkills(response.data);
             })
             .catch(error => {
                 console.error(error);
             });
     }, []);
 
-    const createJob = (event) => {
+    
+
+
+
+    
+
+    const createJob = async (event) => {
         event.preventDefault();
         // post request to create a new job
-        axios.post('/jobs', newJob)
-            .then(response => {
-                // add the newly created job to the jobs list
-                setJobs([...jobs, response.data]);
-                // reset newJob state
-                setNewJob({ job_title: '', company_id: '', location: '', status: '', date_applied: '', notes: '' });
+        const jobData = {
+            ...newJob, 
+            skills: newJob.skills.map(skillTitle => {
+                const matchedSkill = skills.find(s => s.skill_title === skillTitle);
+                return matchedSkill ? matchedSkill.skill_id : null;
+            }).filter(skillId => skillId !== null)
+        };
+        const response = await axios.post('/jobs', jobData);
+        if (response.status === 201) {
+            setIsAddOpen(false);
+            alert("Job added");
+            resetJobForm();
+            const newJobWithSkills = await axios.get(`/jobs/${response.data.job_id}/skills`)
+            .then(res => {
+                return { ...response.data, skills: res.data || []}
             })
-            .catch(error => {
-                console.error(error);
-            });
+            setJobs([...jobs, newJobWithSkills]);
+        } else {
+            setIsAddOpen(false);
+            alert("Unable to add job");
+            resetJobForm();
+        }
     };
 
     const deleteJob = (job_id) => {
@@ -51,6 +100,7 @@ function JobPage() {
                 console.error(error);
             });
     };
+    
 
     const updateJob = (event, job_id) => {
         event.preventDefault();
@@ -58,11 +108,13 @@ function JobPage() {
         axios.put(`/jobs/${job_id}`, editingJob)
             .then(response => {
                 // update the updated job in the jobs list
-                setJobs(jobs.map(job => job.job_id === job_id ? editingJob : job));
+                setJobs(jobs.map(job => job.job_id === job_id ? {...job, ...editingJob} : job));
+                
                 // reset editingJob state
                 setEditingJob(null);
             })
             .catch(error => {
+                console.error("Error from server: ", error);  // log any errors
                 console.error(error);
             });
     };
@@ -72,13 +124,46 @@ function JobPage() {
         setEditingJob(job);
     };
 
+    const resetJobForm = () => {
+        setNewJob({ job_title: '', company: '', location: '', status: '', date_applied: '', notes: '' , skills: []});
+    };
+
+    const handleOpenAddModal = () => {
+        setIsAddOpen(true);
+    };
+
+    const handleCloseAddModal = () => {
+        setIsAddOpen(false);
+    };
+
+    const handleSkillChange = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions).map(option => option.value);
+        setNewJob({ ...newJob, skills: selectedOptions });
+    };
+
+
+    
+
+    
+
     return (
         <div>
             <Navbar />
             <h1 className="PageHeader">Job Page</h1>
             {/* form to create a new job */}
+            <button type="button" className="new-job-button"
+                    onClick={handleOpenAddModal}>
+                New Job
+            </button>
+            <Modal
+                isOpen={isAddOpen}
+                onRequestClose={handleCloseAddModal}
+                portalClassName={""}
+                shouldCloseOnEsc={true}
+                preventScroll={true}
+            >
             <form onSubmit={createJob}>
-                <input type="text" value={newJob.title} onChange={e => setNewJob({ ...newJob, title: e.target.value })} placeholder="Job title" required />
+                <input type="text" value={newJob.job_title} onChange={e => setNewJob({ ...newJob, job_title: e.target.value })} placeholder="Job title" required />
                 <input type="text" value={newJob.company} onChange={e => setNewJob({ ...newJob, company: e.target.value })} placeholder="Company" required />
                 <input type="text" value={newJob.location} onChange={e => setNewJob({ ...newJob, location: e.target.value })} placeholder="Location" required />
                 <select value={newJob.status} onChange={e => setNewJob({ ...newJob, status: e.target.value })} required>
@@ -89,45 +174,65 @@ function JobPage() {
                     <option value="Offer Accepted">Offer Accepted</option>
                     <option value="Offer Denied">Offer Denied</option>
                 </select>
-                <input type="text" value={newJob.skills} onChange={e => setNewJob({ ...newJob, skills: e.target.value })} placeholder="Skills" />
-                <input type="date" value={newJob.date} onChange={e => setNewJob({ ...newJob, date: e.target.value })} placeholder="Date" />
+                <select multiple value={newJob.skills} onChange={handleSkillChange} required>
+                    <option value="">--Select Skill--</option>
+                    {skills.map((skill, index) => (
+                        <option key={index} value={skill.skill_title}>{skill.skill_title}</option>
+                    ))}
+                </select>
+                <input type="date" value={newJob.date_applied} onChange={e => setNewJob({ ...newJob, date_applied: e.target.value })} placeholder="Date" />
                 <input type="text" value={newJob.notes} onChange={e => setNewJob({ ...newJob, notes: e.target.value })} placeholder="Notes" />
-                <button type="submit">Create Job</button>
+                <button id="jobSubmit" type="submit">Add Job</button>
             </form>
+            </Modal>
             {/* list of jobs */}
-            {jobs.map((job, index) => (
-                <div key={index}>
-                    <h2>{job.title}</h2>
-                    <p>{job.company}</p>
-                    <p>{job.location}</p>
-                    <p>{job.status}</p>
-                    <p>{job.skills}</p>
-                    <p>{job.date}</p>
-                    <p>{job.notes}</p>
-                    <button onClick={() => editJob(job)}>Edit</button>
-                    <button onClick={() => deleteJob(job.id)}>Delete</button>
+            <div>
+                    <table id="jobs">
+                        <thead>
+                        <tr>
+                            <th>Job title</th>
+                            <th>Company</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Skills</th>
+                            <th>Date Applied</th>
+                            <th>Notes</th>
+                            <th>Edit/Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {/*
+                        Iterates over the skills objects in skillsList and sends to Skills
+                        component to dynamically render each table row.
+                        */}
+                        {jobs.map((job, index) => {
+                            console.log(job);
+                        return (
+                            <tr key={index}>
+                                <td>{job.job_title}</td>
+                                <td>{job.company}</td>
+                                <td>{job.location}</td>
+                                <td>{job.status}</td>
+                                <td>{
+                                    job.skills && job.skills.skills
+                                    ? job.skills.skills.map((skill, skillIndex) => (
+                                            <span key={skillIndex}>{skill}{skillIndex < job.skills.skills.length - 1 ? ', ' : ''}</span>
+                                        ))
+                                        : ""
+                                    }
+                                </td>
+                                <td>{job.date_applied}</td>
+                                <td>{job.notes}</td>
+                                <td>
+                                    <button onClick={() => navigate(`/jobs/edit/${job.job_id}`)}>Edit</button>
+                                    <button onClick={() => deleteJob(job.job_id)}>Delete</button>
+                                </td>
+                            </tr>
+                        );
+                    })}
+                        </tbody>
+                    </table>
                 </div>
-            ))}
-            {/* form to edit a job */}
-            {editingJob && (
-                <form onSubmit={(e) => updateJob(e, editingJob.id)}>
-                    <input type="text" value={editingJob.title} onChange={e => setEditingJob({ ...editingJob, title: e.target.value })} placeholder="Job title" required />
-                    <input type="text" value={editingJob.company} onChange={e => setEditingJob({ ...editingJob, company: e.target.value })} placeholder="Company" required />
-                    <input type="text" value={editingJob.location} onChange={e => setEditingJob({ ...editingJob, location: e.target.value })} placeholder="Location" required />
-                    <select value={editingJob.status} onChange={e => setEditingJob({ ...editingJob, status: e.target.value })} required>
-                        <option value="">--Select Status--</option>
-                        <option value="Applied">Applied</option>
-                        <option value="Waiting to hear back">Waiting to hear back</option>
-                        <option value="Interviewed">Interviewed</option>
-                        <option value="Offer Accepted">Offer Accepted</option>
-                        <option value="Offer Denied">Offer Denied</option>
-                    </select>
-                    <input type="text" value={editingJob.skills} onChange={e => setEditingJob({ ...editingJob, skills: e.target.value })} placeholder="Skills" />
-                    <input type="date" value={editingJob.date} onChange={e => setEditingJob({ ...editingJob, date: e.target.value })} placeholder="Date" />
-                    <input type="text" value={editingJob.notes} onChange={e => setEditingJob({ ...editingJob, notes: e.target.value })} placeholder="Notes" />
-                    <button type="submit">Update Job</button>
-                </form>
-            )}
         </div>
     );
 }
