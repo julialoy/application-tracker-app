@@ -12,11 +12,6 @@ console.log(secret);
 const PORT = process.env.PORT;
 const app = express();
 app.use(express.json());
-app.use(expressSession({
-    secret: secret,
-    resave: false,
-    saveUninitialized: true
-}));
 
 app.use(expressSession({
     secret: secret,
@@ -44,10 +39,6 @@ function ensureLoggedIn(req, res, next) {
     }
 }
 
-app.get('/', (req, res) => {
-    res.render('home');
-});
-
 // Routes here
 
 app.post('/register', (req, res) => {
@@ -66,7 +57,7 @@ app.post('/register', (req, res) => {
                     // Upon successful registration user is logged in
                     req.session.user = result;
                     res.status(201).setHeader('content-type', 'application/json')
-                        .json(result);
+                        .json({user: result});
                 }
                })
            .catch(error => {
@@ -103,6 +94,16 @@ app.post('/login', (req, res) => {
         console.error(`Caught exception: ${err}`); // Logging any caught exceptions
         res.status(500).json({ error: 'Server error.' });
     }
+});
+
+app.post('/logout', ensureLoggedIn, (req, res) => {
+   try {
+       req.session.user = null;
+       res.redirect('/');
+   } catch (err) {
+       res.status(500).json({error: "Error during logout."});
+   }
+
 });
 
 app.get('/', (req, res) => {
@@ -478,8 +479,48 @@ app.delete('/skills/:skill_id', ensureLoggedIn, (req, res) => {
        })
        .catch(error => {
            res.status(500).setHeader('content-type', 'application/json')
-               .json({error: "Unable to delete skill"});
+               .json({error: "Unable to delete skill: Internal Server Error"});
        });
+});
+
+app.get('/edit-profile/', ensureLoggedIn, (req, res) => {
+   const userId = req.session.user.user_id;
+    model.getUserData(userId)
+        .then(result => {
+            if (!result.error) {
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json({user: result});
+            } else {
+                res.status(400).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to find user data."});
+            }
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({error: "Internal server error."});
+        });
+});
+
+app.post('/edit-profile/:user_id', ensureLoggedIn, (req, res) => {
+    const userId = req.params.user_id;
+    const userFirstName = req.body.userFirstName;
+    const userLastName = req.body.userLastName;
+    const userEmail = req.body.userEmail;
+    const newPassword = req.body.newPassword;
+    model.editProfile(userId, userFirstName, userLastName, userEmail, newPassword)
+        .then(result => {
+            if (result.error) {
+                res.status(400).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to update profile"});
+            } else {
+                res.status(201).setHeader('content-type', 'application/json')
+                    .json(result);
+            }
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({error: "Unable to update profile: Internal Server Error"});
+        });
 });
 
 app.listen(PORT, () => {

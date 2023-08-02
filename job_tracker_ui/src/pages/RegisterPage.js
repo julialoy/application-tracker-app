@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const RegisterPage = () => {
+export const RegisterPage = ( ) => {
     const [email, setEmail] = useState('');
     const [pword, setPword] = useState('');
     const [pwordConfirm, setPwordConfirm] = useState('');
@@ -70,7 +70,6 @@ export const RegisterPage = () => {
                 />
                 <label htmlFor="userEmail">
                     Email *
-                    Email address
                 </label>
                 <input
                     id="userEmail"
@@ -83,7 +82,6 @@ export const RegisterPage = () => {
                 />
                 <label htmlFor="userPassword">
                     Password *
-                    Password
                 </label>
                 <input
                     id="userPassword"

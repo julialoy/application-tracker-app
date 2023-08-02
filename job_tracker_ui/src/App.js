@@ -5,15 +5,18 @@ import { BrowserRouter, Route} from 'react-router-dom';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
+import Logout from './components/Logout';
 import JobPage from './pages/JobPage';
 import SkillsPage from './pages/SkillsPage';
 import ContactPage from './pages/ContactPage';
 import EditSkillsPage from './pages/EditSkillsPage';
 import EditJobPage from './pages/EditJobPage';
 import EditContactPage from './pages/EditContactPage';
+import ProfilePage from './pages/ProfilePage';
 
 export const App = () => {
     const [targetSkill, setTargetSkill] = useState();
+
  return (
      <div className="App">
       <BrowserRouter>
@@ -27,6 +30,8 @@ export const App = () => {
               <Route path="/edit-skill" element={<EditSkillsPage targetSkill={targetSkill} />} />
               <Route path="/contacts" element={<ContactPage />} />
               <Route path="/contacts/edit/:id" element={<EditContactPage />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route path="/edit-profile" element={<ProfilePage />} />
           </Routes>
       </BrowserRouter>
      </div>

@@ -60,7 +60,6 @@ const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
     };
     const result = await pool.query(addUserQuery);
     if (result.rows.length > 0) {
-        console.log("REGISTERED: ", result.rows[0]);
         return result.rows[0];
     } else {
         return {error: "Unable to create user."}
@@ -120,4 +119,42 @@ const deleteSkill = async (skillId) => {
     }
 }
 
-export { pool, addSkill, addUser, authenticateUser, deleteSkill, editSkill, getSkills};
+const editProfile = async (userId, userFirstName, userLastName, userEmail, newPassword) => {
+    // Ensure password is not set to an empty string if user is not updating password
+    let editUserQuery;
+    if (newPassword !== '') {
+        editUserQuery = {
+            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4, pass = $5 WHERE user_id = $1 RETURNING *',
+            values: [userId, userFirstName, userLastName, userEmail, newPassword]
+        }
+    } else {
+        editUserQuery = {
+            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4 WHERE user_id = $1 RETURNING *',
+            values: [userId, userFirstName, userLastName, userEmail]
+        }
+    }
+    const result = await pool.query(editUserQuery);
+    if (result.rows) {
+        return result.rows[0];
+    } else {
+        return {error: "Unable to edit profile."};
+    }
+}
+
+const getUserData = async (userId) => {
+    const userQuery = {
+        text: 'SELECT * FROM "Users" WHERE user_id = $1',
+        values: [userId]
+    }
+    const result = await pool.query(userQuery);
+    if (result.rows) {
+        return result.rows[0];
+    } else {
+        return {error: "Unable to find user."};
+    }
+}
+
+export {
+    pool, addSkill, addUser, authenticateUser,
+    deleteSkill, editSkill, getSkills, getUserData, editProfile
+};

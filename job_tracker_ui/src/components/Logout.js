@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const Logout = () => {
+export const Logout = ( ) => {
     const navigate = useNavigate();
+
     const handleLogout = async () => {
         const response = await fetch('/logout', {
             method: 'POST',
@@ -12,11 +13,19 @@ export const Logout = () => {
             },
         });
         if (response.status === 200) {
-            navigate('/');
+            alert("Successfully logged out.");
+            navigate('/login');
         } else {
             alert("Could not log user out.");
+            navigate('/');
         }
     }
+
+    useEffect(() => {
+        handleLogout();
+    });
+
+    return null;
 }
 
 export default Logout;
