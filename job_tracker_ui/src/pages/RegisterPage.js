@@ -10,6 +10,10 @@ export const RegisterPage = ( ) => {
 
     const navigate = useNavigate();
 
+    const isPassConfirmed = (userPass, confirmPass) => {
+        return (userPass === confirmPass);
+    }
+
     const resetRegForm = () => {
         setEmail('');
         setPword('');
@@ -20,23 +24,28 @@ export const RegisterPage = ( ) => {
 
     const registerUser = async (evt) => {
         evt.preventDefault();
-        const newUser = {email, pword, pwordConfirm, firstName, lastName};
-        const response = await fetch('/register', {
-            method: 'POST',
-            body: JSON.stringify(newUser),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (response.status === 201) {
-            alert("Registration successful");
-            navigate('/jobs');
-        } else if  (response.status === 400){
-            alert("One or more of the fields were invalid or an account with that email already exists");
+        if (!isPassConfirmed(pword, pwordConfirm)) {
+            alert("Passwords don't match. Try again.");
             resetRegForm();
         } else {
-            alert("Error encountered during registration. Try again.");
-            resetRegForm();
+            const newUser = {email, pword, pwordConfirm, firstName, lastName};
+            const response = await fetch('/register', {
+                method: 'POST',
+                body: JSON.stringify(newUser),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.status === 201) {
+                alert("Registration successful");
+                navigate('/jobs');
+            } else if (response.status === 400) {
+                alert("One or more of the fields were invalid or an account with that email already exists");
+                resetRegForm();
+            } else {
+                alert("Error encountered during registration. Try again.");
+                resetRegForm();
+            }
         }
     }
 
@@ -81,7 +90,9 @@ export const RegisterPage = ( ) => {
                     required
                 />
                 <label htmlFor="userPassword">
-                    Password *
+                    Password * <br />
+                    (Must be at least 8 characters long and contain at least 1 of the following:
+                    uppercase letter, lowercase letter, number, special character)
                 </label>
                 <input
                     id="userPassword"

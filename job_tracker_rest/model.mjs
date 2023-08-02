@@ -1,12 +1,16 @@
+// bcrypt hash and check functions based on examples from bcryptjs documentation:
+// https://github.com/dcodeIO/bcrypt.js/blob/master/README.md
 import 'dotenv/config';
 import { createRequire } from 'module';
 import express from 'express';
+
 const app = express();
 app.use(express.json());
 
 const require = createRequire(import.meta.url);
-const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
 
+const { Pool } = require('pg');
 const pool = new Pool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -18,10 +22,15 @@ const pool = new Pool({
 
 const authenticateUser = async (username, password) => {
     const result = await pool.query(
-        'SELECT * FROM "Users" WHERE email = $1 AND pass = $2',
-        [username, password]);
+        'SELECT * FROM "Users" WHERE email = $1',
+        [username]);
     if (result.rows.length > 0) {
-        return result.rows[0]; // return the user if found
+        const checkPass = await bcrypt.compare(password, result.rows[0].pass);
+        if (checkPass) {
+            return result.rows[0]; // return the user if found
+        } else {
+            return null;
+        }
     } else {
         return null; // or some other value to indicate no user found
     }
@@ -45,6 +54,7 @@ const countJobsPerSkill = async (skills) => {
 }
 
 const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
+    // Returns error if user tries to register same email more than once
     const getUserByEmailQuery = {
         text: 'SELECT * FROM "Users" WHERE email = $1',
         values: [userEmail]
@@ -54,9 +64,10 @@ const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
         return {error: "User already exists."};
     }
 
+    const hashedPass = await bcrypt.hash(userPass, 10);
     const addUserQuery = {
         text: 'INSERT INTO "Users"(email, first_name, last_name, pass) VALUES($1, $2, $3, $4) RETURNING *',
-        values: [userEmail, userFirstName, userLastName, userPass]
+        values: [userEmail, userFirstName, userLastName, hashedPass]
     };
     const result = await pool.query(addUserQuery);
     if (result.rows.length > 0) {
@@ -123,13 +134,14 @@ const editProfile = async (userId, userFirstName, userLastName, userEmail, newPa
     // Ensure password is not set to an empty string if user is not updating password
     let editUserQuery;
     if (newPassword !== '') {
+        const hashedPass = await bcrypt.hash(newPassword, 10);
         editUserQuery = {
-            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4, pass = $5 WHERE user_id = $1 RETURNING *',
-            values: [userId, userFirstName, userLastName, userEmail, newPassword]
+            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4, pass = $5 WHERE user_id = $1 RETURNING "user_id", "first_name", "last_name", "email"',
+            values: [userId, userFirstName, userLastName, userEmail, hashedPass]
         }
     } else {
         editUserQuery = {
-            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4 WHERE user_id = $1 RETURNING *',
+            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4 WHERE user_id = $1 RETURNING "user_id", "first_name", "last_name", "email"',
             values: [userId, userFirstName, userLastName, userEmail]
         }
     }
@@ -143,7 +155,7 @@ const editProfile = async (userId, userFirstName, userLastName, userEmail, newPa
 
 const getUserData = async (userId) => {
     const userQuery = {
-        text: 'SELECT * FROM "Users" WHERE user_id = $1',
+        text: 'SELECT "user_id", "first_name", "last_name", "email" FROM "Users" WHERE user_id = $1',
         values: [userId]
     }
     const result = await pool.query(userQuery);
