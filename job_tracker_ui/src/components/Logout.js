@@ -14,7 +14,7 @@ export const Logout = ( ) => {
         });
         if (response.status === 200) {
             alert("Successfully logged out.");
-            navigate('/login');
+            navigate('/');
         } else {
             alert("Could not log user out.");
             navigate('/');

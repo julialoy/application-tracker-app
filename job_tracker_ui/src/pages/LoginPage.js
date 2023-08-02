@@ -24,7 +24,7 @@ export const LoginPage = ( ) => {
         })
         if (response.status === 200) {
             alert("Login successful");
-            navigate('/jobs');
+            navigate('/');
         } else {
             alert("Error encountered during login. Try again.");
             resetLoginForm();

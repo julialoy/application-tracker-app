@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/navbar/Navbar';
 import SkillsHeader from '../components/Skills/SkillsHeader';
 import Skills from '../components/Skills/Skills';
 import Modal from 'react-modal';
+import axios from 'axios';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import './SkillsPage.css';
 
 // Sets parent element of Modal so screen readers work correctly upon modal open
@@ -14,7 +18,9 @@ export const SkillsPage = ({ setTargetSkill }) => {
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [newSkillTitle, setNewSkillTitle] = useState('');
     const [newSkillDesc, setNewSkillDesc] = useState('');
+    const [firstName, setFirstName] = useState('');
     const navigate = useNavigate();
+    
 
     const onSkillEdit = async (skillId) => {
         const targetSkill = skillsList.filter(skill => skill.skill_id === skillId)[0];
@@ -78,6 +84,28 @@ export const SkillsPage = ({ setTargetSkill }) => {
     useEffect(() => {
         fetchAllSkills();
     }, []);
+
+    useEffect(() => {
+        axios.get('/user/firstName')
+            .then(response => {
+                setFirstName(response.data.firstName);
+            })
+            .catch(error => console.error(error));
+    }, []);
+
+    if (!firstName) { // If firstName is null, user is not logged in
+        return (
+            <div>
+                <Navbar />
+                <Header />
+                <p>You must be logged in to view this page.</p>
+                <Link to="/register">Register</Link>
+                <br />
+                <Link to="/login">Log in</Link>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div>
