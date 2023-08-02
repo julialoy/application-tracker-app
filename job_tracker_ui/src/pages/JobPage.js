@@ -180,6 +180,7 @@ function JobPage() {
                         <option value="Interviewed">Interviewed</option>
                         <option value="Offer Accepted">Offer Accepted</option>
                         <option value="Offer Denied">Offer Denied</option>
+                        <option value="Rejected">Rejected</option>
                     </select>
                     <select id= 'jobDesc' multiple value={newJob.skills} onChange={handleSkillChange} required>
                         <option value="">--Select Skill--</option>
