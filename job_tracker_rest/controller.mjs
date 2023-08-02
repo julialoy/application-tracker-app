@@ -2,7 +2,6 @@ import 'dotenv/config';
 import * as model from './model.mjs';
 import express from 'express';
 import crypto from 'crypto';
-
 import expressSession from 'express-session';
 
 const secret = crypto.randomBytes(64).toString('hex');
@@ -12,11 +11,6 @@ console.log(secret);
 const PORT = process.env.PORT;
 const app = express();
 app.use(express.json());
-app.use(expressSession({
-    secret: secret,
-    resave: false,
-    saveUninitialized: true
-}));
 
 app.use(expressSession({
     secret: secret,
@@ -24,11 +18,28 @@ app.use(expressSession({
     saveUninitialized: true
   }));
 
-// Validation logic here
-const isPasswordValid = (pword, pwordConfirm) => {
-    // Additional validation logic can be incorporated here
-    // at later steps, e.g., requiring uppercase, symbols, etc.
-    return (pword === pwordConfirm && pword.length >= 8);
+// Validate password per specs:
+//      8 characters or more in length
+//      Contains at least 1 uppercase letter
+//      Contains at least 1 lowercase letter
+//      Contains at least 1 digit
+//      Contains at least 1 special character in set ~`!@#$%^&*()_-+={[}]|\:;"'<,>.?/
+//      Does not contain whitespace
+const isPasswordValid = (pword) => {
+    if (pword.length <= 8) {
+        return false;
+    } else if (!pword.match(/[a-z]/)) {
+        return false;
+    } else if (!pword.match(/[A-Z]/)) {
+        return false;
+    } else if (!pword.match(/\d/)) {
+        return false;
+    } else if (pword.match(/\s/)) {
+        return false;
+    } else if (!pword.match(/[~`!@#$%^&*()_\-+={\[}\]|\\:;"'<,>.?\/]/)) {
+        return false;
+    }
+    return true;
 };
 
 function ensureLoggedIn(req, res, next) {
@@ -44,10 +55,6 @@ function ensureLoggedIn(req, res, next) {
     }
 }
 
-app.get('/', (req, res) => {
-    res.render('home');
-});
-
 // Routes here
 
 app.post('/register', (req, res) => {
@@ -55,8 +62,7 @@ app.post('/register', (req, res) => {
    const userLastName = req.body.lastName;
    const email = req.body.email;
    const userpass = req.body.pword;
-   const userpassConfirm = req.body.pwordConfirm;
-   if (isPasswordValid(userpass, userpassConfirm)) {
+   if (isPasswordValid(userpass)) {
        model.addUser(email, userFirstName, userLastName, userpass)
            .then(result => {
                 if (result.error) {
@@ -66,7 +72,7 @@ app.post('/register', (req, res) => {
                     // Upon successful registration user is logged in
                     req.session.user = result;
                     res.status(201).setHeader('content-type', 'application/json')
-                        .json(result);
+                        .json({user: result});
                 }
                })
            .catch(error => {
@@ -75,7 +81,7 @@ app.post('/register', (req, res) => {
            });
    } else {
        res.status(400).setHeader('content-type', 'application/json')
-           .json({error: "Invalid password supplied"});
+           .json({error: "Invalid password."});
    }
 });
 
@@ -103,6 +109,15 @@ app.post('/login', (req, res) => {
         console.error(`Caught exception: ${err}`); // Logging any caught exceptions
         res.status(500).json({ error: 'Server error.' });
     }
+});
+
+app.post('/logout', ensureLoggedIn, (req, res) => {
+   try {
+       req.session.user = null;
+       res.redirect('/');
+   } catch (err) {
+       res.status(500).json({error: "Error during logout."});
+   }
 });
 
 app.get('/', (req, res) => {
@@ -478,8 +493,55 @@ app.delete('/skills/:skill_id', ensureLoggedIn, (req, res) => {
        })
        .catch(error => {
            res.status(500).setHeader('content-type', 'application/json')
-               .json({error: "Unable to delete skill"});
+               .json({error: "Unable to delete skill: Internal Server Error"});
        });
+});
+
+app.get('/edit-profile/', ensureLoggedIn, (req, res) => {
+   const userId = req.session.user.user_id;
+    model.getUserData(userId)
+        .then(result => {
+            if (!result.error) {
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json({user: result});
+            } else {
+                res.status(400).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to find user data."});
+            }
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({error: "Internal server error."});
+        });
+});
+
+app.post('/edit-profile/:user_id', ensureLoggedIn, (req, res) => {
+    const userId = req.params.user_id;
+    const userFirstName = req.body.userFirstName;
+    const userLastName = req.body.userLastName;
+    const userEmail = req.body.userEmail;
+    const newPassword = req.body.newPassword;
+
+    // Does not continue if user supplied invalid new password
+    if (newPassword !== '' && !isPasswordValid(newPassword)) {
+        res.status(400).setHeader('content-type', 'application/json')
+            .json({error: "Invalid password"});
+    } else {
+        model.editProfile(userId, userFirstName, userLastName, userEmail, newPassword)
+            .then(result => {
+                if (result.error) {
+                    res.status(400).setHeader('content-type', 'application/json')
+                        .json({error: "Unable to update profile"});
+                } else {
+                    res.status(201).setHeader('content-type', 'application/json')
+                        .json(result);
+                }
+            })
+            .catch(error => {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({error: "Unable to update profile: Internal Server Error"});
+            });
+    }
 });
 
 app.listen(PORT, () => {

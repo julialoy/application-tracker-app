@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const LoginPage = () => {
+export const LoginPage = ( ) => {
     const [email, setEmail] = useState('');
     const [pword, setPword] = useState('');
 
