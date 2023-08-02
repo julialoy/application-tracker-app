@@ -3,6 +3,10 @@ import axios from 'axios';
 import Navbar from '../components/navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { Link } from 'react-router-dom';
+
 
 Modal.setAppElement(document.getElementById('root'));
 
@@ -11,6 +15,7 @@ function ContactPage() {
   const [userId, setUserId] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [firstName, setFirstName] = useState('');
   const [newContact, setNewContact] = useState({
     first_name: '',
     last_name: '',
@@ -45,10 +50,17 @@ function ContactPage() {
     fetchContacts();
 }, []);
 
+  useEffect(() => {
+    axios.get('/user/firstName')
+        .then(response => {
+            setFirstName(response.data.firstName);
+        })
+        .catch(error => console.error(error));
+  }, []);
+
 
   const addContact = async (event) => {
     event.preventDefault();
-    const cobtactData = {...newContact}; 
     const response = await fetch('/contacts', { 
       method: 'POST',
       body: JSON.stringify(newContact),
@@ -116,6 +128,20 @@ function ContactPage() {
     const handleCloseAddModal = () => {
         setIsAddOpen(false);
     };
+
+    if (!firstName) { // If firstName is null, user is not logged in
+      return (
+          <div>
+              <Navbar />
+              <Header />
+              <p>You must be logged in to view this page.</p>
+              <Link to="/register">Register</Link>
+              <br />
+              <Link to="/login">Log in</Link>
+              <Footer />
+          </div>
+      );
+  }
 
 
   return (

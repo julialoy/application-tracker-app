@@ -111,6 +111,15 @@ app.post('/login', (req, res) => {
     }
 });
 
+
+app.get('/user/firstName', (req, res) => {
+    if (req.session.user && req.session.user.first_name) { 
+        res.json({ firstName: req.session.user.first_name }); 
+    } else {
+        res.status(400).json({ error: 'User not logged in.' });
+    }
+});
+
 app.post('/logout', ensureLoggedIn, (req, res) => {
    try {
        req.session.user = null;

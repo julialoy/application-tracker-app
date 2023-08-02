@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/navbar/Navbar';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 import Modal from 'react-modal';
 import './JobPage.css';
 
@@ -11,6 +14,7 @@ function JobPage() {
     const [jobs, setJobs] = useState([]);
     const [skills, setSkills] = useState([]);
     const [isAddOpen, setIsAddOpen] = useState(false);
+    const [firstName, setFirstName] = useState('');
     const [newJob, setNewJob] = useState({
         job_title: '',
         company: '',
@@ -55,6 +59,14 @@ function JobPage() {
             .catch(error => {
                 console.error(error);
             });
+    }, []);
+
+    useEffect(() => {
+        axios.get('/user/firstName')
+            .then(response => {
+                setFirstName(response.data.firstName);
+            })
+            .catch(error => console.error(error));
     }, []);
     
 
@@ -145,6 +157,20 @@ function JobPage() {
         const year = date.getFullYear();
         return `${month}/${day}/${year}`;
     };
+
+    if (!firstName) { // If firstName is null, user is not logged in
+        return (
+            <div>
+                <Navbar />
+                <Header />
+                <p>You must be logged in to view this page.</p>
+                <Link to="/register">Register</Link>
+                <br />
+                <Link to="/login">Log in</Link>
+                <Footer />
+            </div>
+        );
+    }
     
 
     
