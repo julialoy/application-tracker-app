@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/navbar/Navbar';
 import Modal from 'react-modal';
+import './JobPage.css';
 
 Modal.setAppElement(document.getElementById('root'));
 
@@ -55,11 +56,6 @@ function JobPage() {
                 console.error(error);
             });
     }, []);
-
-    
-
-
-
     
 
     const createJob = async (event) => {
@@ -141,7 +137,14 @@ function JobPage() {
         setNewJob({ ...newJob, skills: selectedOptions });
     };
 
-
+    // Helper function to format date in "MM/DD/YYYY" format
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
+    };
     
 
     
@@ -149,90 +152,97 @@ function JobPage() {
     return (
         <div>
             <Navbar />
-            <h1 className="PageHeader">Job Page</h1>
+            <h1 className="PageHeader">My Jobs</h1>
             {/* form to create a new job */}
-            <button type="button" className="new-job-button"
-                    onClick={handleOpenAddModal}>
-                New Job
-            </button>
-            <Modal
-                isOpen={isAddOpen}
-                onRequestClose={handleCloseAddModal}
-                portalClassName={""}
-                shouldCloseOnEsc={true}
-                preventScroll={true}
-            >
-            <form onSubmit={createJob}>
-                <input type="text" value={newJob.job_title} onChange={e => setNewJob({ ...newJob, job_title: e.target.value })} placeholder="Job title" required />
-                <input type="text" value={newJob.company} onChange={e => setNewJob({ ...newJob, company: e.target.value })} placeholder="Company" required />
-                <input type="text" value={newJob.location} onChange={e => setNewJob({ ...newJob, location: e.target.value })} placeholder="Location" required />
-                <select value={newJob.status} onChange={e => setNewJob({ ...newJob, status: e.target.value })} required>
-                    <option value="">--Select Status--</option>
-                    <option value="Applied">Applied</option>
-                    <option value="Waiting to hear back">Waiting to hear back</option>
-                    <option value="Interviewed">Interviewed</option>
-                    <option value="Offer Accepted">Offer Accepted</option>
-                    <option value="Offer Denied">Offer Denied</option>
-                </select>
-                <select multiple value={newJob.skills} onChange={handleSkillChange} required>
-                    <option value="">--Select Skill--</option>
-                    {skills.map((skill, index) => (
-                        <option key={index} value={skill.skill_title}>{skill.skill_title}</option>
-                    ))}
-                </select>
-                <input type="date" value={newJob.date_applied} onChange={e => setNewJob({ ...newJob, date_applied: e.target.value })} placeholder="Date" />
-                <input type="text" value={newJob.notes} onChange={e => setNewJob({ ...newJob, notes: e.target.value })} placeholder="Notes" />
-                <button id="jobSubmit" type="submit">Add Job</button>
-            </form>
-            </Modal>
-            {/* list of jobs */}
-            <div>
-                    <table id="jobs">
-                        <thead>
-                        <tr>
-                            <th>Job title</th>
-                            <th>Company</th>
-                            <th>Location</th>
-                            <th>Status</th>
-                            <th>Skills</th>
-                            <th>Date Applied</th>
-                            <th>Notes</th>
-                            <th>Edit/Delete</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {/*
-                        Iterates over the skills objects in skillsList and sends to Skills
-                        component to dynamically render each table row.
-                        */}
-                        {jobs.map((job, index) => {
-                            console.log(job);
-                        return (
-                            <tr key={index}>
-                                <td>{job.job_title}</td>
-                                <td>{job.company}</td>
-                                <td>{job.location}</td>
-                                <td>{job.status}</td>
-                                <td>{
-                                    job.skills && job.skills.skills
-                                    ? job.skills.skills.map((skill, skillIndex) => (
-                                            <span key={skillIndex}>{skill}{skillIndex < job.skills.skills.length - 1 ? ', ' : ''}</span>
-                                        ))
-                                        : ""
-                                    }
-                                </td>
-                                <td>{job.date_applied}</td>
-                                <td>{job.notes}</td>
-                                <td>
-                                    <button onClick={() => navigate(`/jobs/edit/${job.job_id}`)}>Edit</button>
-                                    <button onClick={() => deleteJob(job.job_id)}>Delete</button>
-                                </td>
+            <div className='JobPage'>
+                <button type="button" className="new-job-button"
+                        onClick={handleOpenAddModal}>
+                    New Job
+                </button>
+                <Modal
+                    isOpen={isAddOpen}
+                    onRequestClose={handleCloseAddModal}
+                    portalClassName={""}
+                    shouldCloseOnEsc={true}
+                    preventScroll={true}
+                >
+                <form onSubmit={createJob}>
+                    <h2>Track a New Job</h2>
+                    <hr /> {/* line */}
+                    <p>Enter your new Job/Internship information</p>
+                    <input id= 'jobTitle' type="text" value={newJob.job_title} onChange={e => setNewJob({ ...newJob, job_title: e.target.value })} placeholder="Job title" required />
+                    <input id= 'jobTitle' type="text" value={newJob.company} onChange={e => setNewJob({ ...newJob, company: e.target.value })} placeholder="Company" required />
+                    <input id= 'jobTitle' type="text" value={newJob.location} onChange={e => setNewJob({ ...newJob, location: e.target.value })} placeholder="Location" required />
+                    <select id= 'jobTitle' value={newJob.status} onChange={e => setNewJob({ ...newJob, status: e.target.value })} required>
+                        <option value="">--Select Status--</option>
+                        <option value="Applied">Applied</option>
+                        <option value="Waiting to hear back">Waiting to hear back</option>
+                        <option value="Interviewed">Interviewed</option>
+                        <option value="Offer Accepted">Offer Accepted</option>
+                        <option value="Offer Denied">Offer Denied</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                    <select id= 'jobDesc' multiple value={newJob.skills} onChange={handleSkillChange} required>
+                        <option value="">--Select Skill--</option>
+                        {skills.map((skill, index) => (
+                            <option key={index} value={skill.skill_title}>{skill.skill_title}</option>
+                        ))}
+                    </select>
+                    <input id= 'jobTitle' type="date" value={newJob.date_applied} onChange={e => setNewJob({ ...newJob, date_applied: e.target.value })} placeholder="Date" />
+                    <input id= 'jobDesc' type="text" value={newJob.notes} onChange={e => setNewJob({ ...newJob, notes: e.target.value })} placeholder="Notes" />
+                    <button id="jobSubmit" type="submit">Add Job</button>
+                </form>
+                </Modal>
+                {/* list of jobs */}
+                <div>
+                        <table id="jobs">
+                            <thead>
+                            <tr>
+                                <th>Job title</th>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Skills</th>
+                                <th>Date Applied</th>
+                                <th>Notes</th>
+                                <th>Edit/Delete</th>
                             </tr>
-                        );
-                    })}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                            {/*
+                            Iterates over the skills objects in skillsList and sends to Skills
+                            component to dynamically render each table row.
+                            */}
+                            {jobs.map((job, index) => {
+                                console.log(job);
+                            return (
+                                <tr key={index}>
+                                    <td>{job.job_title}</td>
+                                    <td>{job.company}</td>
+                                    <td>{job.location}</td>
+                                    <td className={`status-${job.status.replace(/\s+/g, '').toLowerCase()}`}>
+                                        {job.status}</td>
+                                    <td>{
+                                        job.skills && job.skills.skills
+                                        ? job.skills.skills.map((skill, skillIndex) => (
+                                                <span key={skillIndex}>{skill}{skillIndex < job.skills.skills.length - 1 ? ', ' : ''}</span>
+                                            ))
+                                            : ""
+                                        }
+                                    </td>
+                                    <td>{formatDate(job.date_applied)}</td>
+                                    <td className="notes-cell">{job.notes}</td>
+                                    <td>
+                                        <button onClick={() => navigate(`/jobs/edit/${job.job_id}`)}>Edit</button>
+                                        <button onClick={() => deleteJob(job.job_id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
         </div>
     );
 }
