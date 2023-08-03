@@ -4,6 +4,7 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Navbar from '../components/navbar/Navbar';
+import './HomePage.css'
 
 export const HomePage = () => {
     const [jobs, setJobs] = useState([]);
@@ -73,82 +74,82 @@ export const HomePage = () => {
         <div>
             <Navbar />
             <Header />
-            <div>
+            <div  className='HomePage'>
                 <h3>{firstName}'s Recent Jobs</h3> 
-                <table id="jobs">
-                    <thead>
-                        <tr>
-                            <th>Job title</th>
-                            <th>Company</th>
-                            <th>Location</th>
-                            <th>Status</th>
-                            <th>Date Applied</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {jobs.slice(-4).map((job, index) => ( 
-                            <tr key={index}>
-                                <td>{job.job_title}</td>
-                                <td>{job.company}</td>
-                                <td>{job.location}</td>
-                                <td>{job.status}</td>
-                                <td>{formatDate(job.date_applied)}</td>
+                    <table id="jobs">
+                        <thead>
+                            <tr>
+                                <th>Job title</th>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Date Applied</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <button><Link to="/jobs">View more jobs</Link></button> 
-            </div>
-            <div>
-                <h3>{firstName}'s Top Skills</h3>
-                <table id="skills">
-                    <thead>
-                        <tr>
-                            <th>Skill</th>
-                            <th># of Jobs</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {skills.slice(-4).map((skill, index) => (
-                            <tr key={index}>
-                                <td>{skill.skill_title}</td>
-                                <td>{skill.num_jobs}</td>
-                                <td>{skill.skill_desc}</td>
+                        </thead>
+                        <tbody>
+                            {jobs.slice(-4).map((job, index) => ( 
+                                <tr key={index}>
+                                    <td>{job.job_title}</td>
+                                    <td>{job.company}</td>
+                                    <td>{job.location}</td>
+                                    <td>{job.status}</td>
+                                    <td>{formatDate(job.date_applied)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <button className='ViewMore'><Link to="/jobs">View more jobs...</Link></button> 
+                </div>
+                <div  className='HomePage'>
+                    <h3>{firstName}'s Top Skills</h3>
+                    <table id="skills">
+                        <thead>
+                            <tr>
+                                <th>Skill</th>
+                                <th># of Jobs</th>
+                                <th>Details</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <button><Link to="/skills">View more skills</Link></button>
-            </div>
-            <div>
-                <h3>{firstName}'s Recent Contacts</h3>
-                <table id="contacts">
-                    <thead>
-                        <tr>
-                            <th>First Name</th>
-                            <th>Last name</th>
-                            <th>Email</th>
-                            <th>Company</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {contacts.slice(-4).map((contact, index) => ( 
-                            <tr key={index}>
-                                <td>{contact.first_name}</td>
-                                <td>{contact.last_name}</td>
-                                <td>{contact.email}</td>
-                                <td>{contact.company}</td>
-                                <td>{contact.notes}</td>
+                        </thead>
+                        <tbody>
+                            {skills.slice(-4).map((skill, index) => (
+                                <tr key={index}>
+                                    <td>{skill.skill_title}</td>
+                                    <td>{skill.num_jobs}</td>
+                                    <td className='notes-cell'>{skill.skill_desc}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <button className='ViewMore'><Link to="/skills">View more skills...</Link></button>
+                </div>
+                <div className='HomePage'>
+                    <h3>{firstName}'s Recent Contacts</h3>
+                    <table id="contacts">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last name</th>
+                                <th>Email</th>
+                                <th>Company</th>
+                                <th>Notes</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <button><Link to="/contacts">View more contacts</Link></button>
+                        </thead>
+                        <tbody>
+                            {contacts.slice(-4).map((contact, index) => ( 
+                                <tr key={index}>
+                                    <td>{contact.first_name}</td>
+                                    <td>{contact.last_name}</td>
+                                    <td>{contact.email}</td>
+                                    <td>{contact.company}</td>
+                                    <td className='notes-cell'>{contact.notes}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <button className='ViewMore'><Link to="/contacts">View more contacts...</Link></button>
+                </div>
+                <Footer />
             </div>
-            <Footer />
-        </div>
     );
 }
 

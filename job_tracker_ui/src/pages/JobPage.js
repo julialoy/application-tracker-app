@@ -186,6 +186,7 @@ function JobPage() {
                     New Job
                 </button>
                 <Modal
+                    className="modal"
                     isOpen={isAddOpen}
                     onRequestClose={handleCloseAddModal}
                     portalClassName={""}
@@ -259,8 +260,8 @@ function JobPage() {
                                     <td>{formatDate(job.date_applied)}</td>
                                     <td className="notes-cell">{job.notes}</td>
                                     <td>
-                                        <button onClick={() => navigate(`/jobs/edit/${job.job_id}`)}>Edit</button>
-                                        <button onClick={() => deleteJob(job.job_id)}>Delete</button>
+                                        <button className='edit-button' onClick={() => navigate(`/jobs/edit/${job.job_id}`)}>Edit</button>
+                                        <button className='delete-button' onClick={() => deleteJob(job.job_id)}>Delete</button>
                                     </td>
                                 </tr>
                             );
