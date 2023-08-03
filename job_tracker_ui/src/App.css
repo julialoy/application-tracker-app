@@ -32,6 +32,14 @@ button {
     margin-right: 2px;
 }
 
+.edit-button:hover {
+    color: #979797;
+}
+
 .delete-button {
     margin-left: 2px;
+}
+
+.delete-button:hover {
+    color: #979797;
 }

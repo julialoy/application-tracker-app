@@ -117,6 +117,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
                     New Skill
                 </button>
                 <Modal
+                    className="modal"
                     isOpen={isAddOpen}
                     onRequestClose={handleCloseAddModal}
                     portalClassName={""}

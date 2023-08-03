@@ -6,6 +6,7 @@ import Modal from 'react-modal';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
+import './ContactPage.css'
 
 
 Modal.setAppElement(document.getElementById('root'));
@@ -146,88 +147,99 @@ function ContactPage() {
 
   return (
     <div>
-            <Navbar />
-            <h1 className="PageHeader">Networking Page</h1>
-            {/* form to create a new contact */}
-            <button type="button" className="new-contact-button"
-                    onClick={handleOpenAddModal}>
-                New Contact
-            </button>
-            <Modal
-                isOpen={isAddOpen}
-                onRequestClose={handleCloseAddModal}
-                portalClassName={""}
-                shouldCloseOnEsc={true}
-                preventScroll={true}
-            >
-            <form onSubmit={addContact}>
-            <input
-              type="text"
-              placeholder="First Name"
-              value={newContact.first_name}
-              onChange={(e) => setNewContact({ ...newContact, first_name: e.target.value })}
-            />
+      <Navbar />
+      <div className="ContactPage">
+        <h1 className="PageHeader">Networking Page</h1>
+        {/* form to create a new contact */}
+        <button type="button" className="new-contact-button"
+                onClick={handleOpenAddModal}>
+            New Contact
+        </button>
+        <Modal
+            className="modal"
+            isOpen={isAddOpen}
+            onRequestClose={handleCloseAddModal}
+            portalClassName={""}
+            shouldCloseOnEsc={true}
+            preventScroll={true}
+        >
+        <form onSubmit={addContact}>
+        <h2>Add a new Contact</h2>
+        <hr /> {/* line */}
+        <p>Enter your new Contact's information</p>
+        <input
+          id= 'jobTitle' 
+          type="text"
+          placeholder="First Name"
+          value={newContact.first_name}
+          onChange={(e) => setNewContact({ ...newContact, first_name: e.target.value })}
+        />
 
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={newContact.last_name}
-              onChange={(e) => setNewContact({ ...newContact, last_name: e.target.value })}
-            />
+        <input
+          id= 'jobTitle' 
+          type="text"
+          placeholder="Last Name"
+          value={newContact.last_name}
+          onChange={(e) => setNewContact({ ...newContact, last_name: e.target.value })}
+        />
 
-            <input
-              type="text"
-              placeholder="Email"
-              value={newContact.email}
-              onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-            />
+        <input
+          id= 'jobTitle' 
+          type="text"
+          placeholder="Email"
+          value={newContact.email}
+          onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
+        />
 
-            <input
-              type="text"
-              placeholder="Company"
-              value={newContact.company}
-              onChange={(e) => setNewContact({ ...newContact, company: e.target.value })}
-            />
+        <input
+          id= 'jobTitle' 
+          type="text"
+          placeholder="Company"
+          value={newContact.company}
+          onChange={(e) => setNewContact({ ...newContact, company: e.target.value })}
+        />
 
-            <input    
-              type="text"
-              placeholder="Notes"
-              value={newContact.notes}
-              onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
-            />
+        <input    
+          id= 'jobDesc'
+          type="text"
+          placeholder="Notes"
+          value={newContact.notes}
+          onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
+        />
 
-            <button type="submit">Add Contact</button>
-          </form>
-            </Modal>
-            <div>
-                    <table id="contacts">
-                        <thead>
-                        <tr>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Email</th>
-                            <th>Company</th>
-                            <th>Notes</th>
-                            <th>Edit/Delete</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {contacts.map((contact, index) => (
-                            <tr key={index}>
-                            <td>{contact.first_name}</td>
-                            <td>{contact.last_name}</td>
-                            <td>{contact.email}</td>
-                            <td>{contact.company}</td>
-                            <td>{contact.notes}</td>
-                            <td>
-                                <button onClick={() => navigate(`/contacts/edit/${contact.contact_id}`)}>Edit</button>
-                                <button onClick={() => deleteContact(contact.contact_id)}>Delete</button>
-                            </td>
-                        </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
+        <button id="ContactSubmit" type="submit">Add Contact</button>
+        </form>
+          </Modal>
+          <div>
+                  <table id="contacts">
+                      <thead>
+                      <tr>
+                          <th>First Name</th>
+                          <th>Last Name</th>
+                          <th>Email</th>
+                          <th>Company</th>
+                          <th>Notes</th>
+                          <th>Edit/Delete</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                          {contacts.map((contact, index) => (
+                          <tr key={index}>
+                          <td>{contact.first_name}</td>
+                          <td>{contact.last_name}</td>
+                          <td>{contact.email}</td>
+                          <td>{contact.company}</td>
+                          <td>{contact.notes}</td>
+                          <td>
+                              <button className='edit-button' onClick={() => navigate(`/contacts/edit/${contact.contact_id}`)}>Edit</button>
+                              <button className='delete-button' onClick={() => deleteContact(contact.contact_id)}>Delete</button>
+                          </td>
+                      </tr>
+                      ))}
+                      </tbody>
+                  </table>
+              </div>
+        </div>
     </div>
   );
 }

@@ -1,0 +1,144 @@
+
+.ContactPage {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Styles for the New Skill button */
+.new-contact-button {
+    padding: 10px 20px;
+    margin: 0 auto;  /* center the button */
+    margin-bottom: 50px;
+    display: block;  /* required for centering elements with margin */
+    background-color: #1CCA00;
+    color: #000000;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.new-contact-button:hover {
+    background-color: #22ff00;
+}
+
+/* Styles for the form inside the Popup */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 75%; /* Adjust this to suit your needs */
+    max-width: 800px; /* This makes sure the modal doesn't get too large on big screens */
+}
+  
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* Centers form content */
+    background-color: #f0f0f0; /* Light grey background */
+    gap: 10px; /* Adds space between form elements */
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+}
+
+form label {
+    font-size: .75em;
+    color: #24292e;
+}
+
+#jobTitle {
+    padding: 10px;
+    width: 40%;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background-color: #fff; /* White input boxes */
+}
+
+#jobDesc { 
+    padding: 10px;
+    width: 40%;
+    height: 50px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background-color: #fff; /* White input boxes */
+}
+
+/* Line under h2 on form */
+hr {
+    width: 40%;  /* length of line */
+    border: none;
+    border-top: 2px solid #30497f;  /* Color and thickness */
+}
+
+form h2 {
+    margin-bottom: 0px;
+    color: #3b5998;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+form p {
+    margin-top: 0px; /* Adjust as needed */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/* Styles for the Add Skill button inside the form */
+#ContactSubmit {
+    padding: 10px 20px;
+    background-color: #3b5998;
+    color: #fafbfc;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#ContactSubmit:hover {
+    background-color: #30497f;
+}
+
+
+/* Styles for the table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th {
+    background-color: #3b5998;
+    color: #fafbfc;
+    padding: 10px;
+}
+  
+table td {
+    padding: 10px;
+    text-align: center;
+}
+
+/* Style for odd table rows */
+table tr:nth-child(odd) {
+    background-color: #f2f2f2; /* Light grey */
+}
+
+/* Style for even table rows */
+table tr:nth-child(even) {
+    background-color: #e0e0e0; /* Darker grey */
+}
+
+/* Hover style for table rows */
+table tr:hover {
+    background-color: #d0d0d0; /* Even darker grey on hover */
+}
+
+.notes-cell {
+    max-width: 200px; /* Set the maximum width of the notes cell */
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide any overflow */
+    text-overflow: ellipsis; /* Display ellipsis (...) when text overflows */
+  }
+  
