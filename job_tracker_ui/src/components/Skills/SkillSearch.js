@@ -5,6 +5,11 @@ export const SkillSearch = () => {
     const [skillName, setSkillName] = useState('');
     const [searchResults, setSearchResults] = useState([]);
 
+    const handleClearSearch = () => {
+        setSkillName('');
+        setSearchResults([]);
+    }
+
     const handleSkillSearch = async (evt) => {
         evt.preventDefault();
         const skillToSearch = {skillName};
@@ -32,6 +37,7 @@ export const SkillSearch = () => {
                        onChange={evt => setSkillName(evt.target.value)}
                 />
                 <button id="skillSearchBtn" type="submit">Search</button>
+                <button id="clearSearch" type="button" onClick={handleClearSearch}>Clear</button>
             </form>
             { searchResults.length > 0 ?
                 <div id="searchResults">
