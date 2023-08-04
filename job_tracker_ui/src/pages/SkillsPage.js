@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/navbar/Navbar';
 import SkillsHeader from '../components/Skills/SkillsHeader';
 import Skills from '../components/Skills/Skills';
+import SkillSearch from '../components/Skills/SkillSearch';
 import Modal from 'react-modal';
 import axios from 'axios';
 import Header from '../components/Header';
@@ -155,6 +156,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
                     </form>
                 </Modal>
                 <div>
+                    <SkillSearch />
                     <table id="skills">
                         <thead>
                         <tr>

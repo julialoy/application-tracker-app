@@ -117,7 +117,7 @@ export const EditJobPage = () => {
                 </label>
                 <input type="text" value={newJob.notes} onChange={e => setNewJob({ ...newJob, notes: e.target.value })} placeholder="Notes" />
                 <button type="submit">Update Job</button>
-                <button onClick={() => navigate('/contacts')} className="back-button">
+                <button onClick={() => navigate('/jobs')} className="back-button">
                           Back to Jobs
                       </button>
             </form>
