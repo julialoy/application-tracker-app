@@ -1,0 +1,72 @@
+.editpage {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .editpage form {
+    display: flex;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  .editpage input[type="text"],
+  .editpage input[type="email"]
+  .editpage select {
+    width: 100%; /* Set the width to 100% to make inputs and select elements full width */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .editpage label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .editpage button {
+    width: 100%; /* Set the width to 100% to make buttons full width */
+    padding: 10px;
+    background-color: #3b5998;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+
+.editpage button.cancel {
+    background-color: #ccc;
+    margin-right: 10px;
+  }
+  
+.editpage button:hover {
+    background-color: #2d4373;
+  }
+
+.editpage h2 {
+    margin-bottom: 0px;
+    color: #3b5998;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+.editpage h5 {
+  margin-bottom: 0px;
+  margin-top: 25px;
+  color: #3b5998;
+  font-size: 12pt;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.editpage p {
+    margin-top: 0px; /* Adjust as needed */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import './EditPages.css'
 
 export const EditContactPage = () => {
     const [contact, setContact] = useState(null);
@@ -34,43 +35,67 @@ export const EditContactPage = () => {
     }
 
     return (
-        <form onSubmit={editingContact}>
-            <input
-              type="text"
-              value={contact.first_name}
-              onChange={(e) => setContact({ ...contact, first_name: e.target.value })}
-              placeholder="first name" required 
-            />
-  
-            <input
-              type="text"
-              value={contact.last_name}
-              onChange={(e) => setContact({ ...contact, last_name: e.target.value })}
-              placeholder="last name" required
-            />
-  
-            <input
-              type="text"
-              value={contact.email}
-              onChange={(e) => setContact({ ...contact, email: e.target.value })}
-              placeholder="email" required
-            />
-  
-            <input
-              type="text"
-              value={contact.company}
-              onChange={(e) => setContact({ ...contact, company: e.target.value })}
-              placeholder="company" required
-            />
-  
-            <input
-              type="text"
-              value={contact.notes}
-              onChange={(e) => setContact({ ...contact, notes: e.target.value })}
-              placeholder="notes" required
-            />
-            <button type="submit">Save Changes</button>
-          </form>
+      <div className='editpage'>
+          <form onSubmit={editingContact}>
+              <h2>Edit This Contact</h2>
+              <hr /> {/* line */}
+              <p>Enter any changes and press 'Save Changes'</p>
+              
+              <label>
+                First Name:
+              </label>
+              <input
+                type="text"
+                value={contact.first_name}
+                onChange={(e) => setContact({ ...contact, first_name: e.target.value })}
+                placeholder="first name" required 
+              />
+
+              <label>
+                Last Name:
+              </label>
+              <input
+                type="text"
+                value={contact.last_name}
+                onChange={(e) => setContact({ ...contact, last_name: e.target.value })}
+                placeholder="last name" required
+              />
+    
+              <label>
+                Email:
+              </label>
+              <input
+                type="text"
+                value={contact.email}
+                onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                placeholder="email" required
+              />
+    
+              <label>
+                Company:
+              </label>
+              <input
+                type="text"
+                value={contact.company}
+                onChange={(e) => setContact({ ...contact, company: e.target.value })}
+                placeholder="company" required
+              />
+    
+              <label>
+                Notes:
+              </label>
+              <input
+                type="text"
+                value={contact.notes}
+                onChange={(e) => setContact({ ...contact, notes: e.target.value })}
+                placeholder="notes" required
+              />
+              <button type="submit">Save Changes</button>
+              <button onClick={() => navigate('/contacts')} className="back-button">
+                          Back to Contacts
+                      </button>
+            </form>
+          </div>
     );
 };
 

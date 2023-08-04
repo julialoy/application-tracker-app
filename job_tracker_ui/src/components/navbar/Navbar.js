@@ -16,8 +16,11 @@ const Navbar = () => {
                     <li><Link to="/jobs" className={location.pathname === "/jobs" ? "active" : ""}>JOBS</Link></li>
                     <li><Link to="/skills" className={location.pathname === "/skills" ? "active" : ""}>SKILLS</Link></li>
                     <li><Link to="/contacts" className={location.pathname === "/contacts" ? "active" : ""}>NETWORKING</Link></li>
-                    <li><Link to="/logout" className={location.pathname === "/logout" ? "active" : ""}>LOG OUT</Link></li>
                 </ul>
+            </div>
+
+            <div className="logout-wrapper">
+                <Link to="/logout" className="logout-btn">LOG OUT</Link>
             </div>
 
             <Link to="/edit-profile" className={location.pathname === "/edit-profile" ? "active profile-btn" : "profile-btn"}>

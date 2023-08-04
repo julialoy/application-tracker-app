@@ -52,11 +52,40 @@ body, html {
 }
 
 .profile-btn {
-    right: 40px; /* adjust as necessary */
+    right: 40px; 
+    border: 2px solid white;
+    border-radius: 100px; 
 }
 
 .profile-btn img {
     /* adjust width/height as needed */
     width: 46px;
     height: 53px;
+}
+
+.profile-btn:hover{
+    border-color: #9b9b9b;
+}
+
+.profile-btn.active {
+    /* Highlight the profile button when it's active */
+    color: yellow;
+    border: 2px solid yellow;
+    border-radius: 100px;
+  }
+
+.logout-wrapper {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.logout-btn {
+    font-size: 10px; 
+    color: white;
+    text-decoration: none;
+}
+
+.logout-btn:hover {
+    color: #ff0000; /* Change background color on hover */
 }
