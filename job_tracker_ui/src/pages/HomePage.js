@@ -92,7 +92,8 @@ export const HomePage = () => {
                                     <td>{job.job_title}</td>
                                     <td>{job.company}</td>
                                     <td>{job.location}</td>
-                                    <td>{job.status}</td>
+                                    <td className={`status-${job.status.replace(/\s+/g, '').toLowerCase()}`}>
+                                        {job.status}</td>
                                     <td>{formatDate(job.date_applied)}</td>
                                 </tr>
                             ))}

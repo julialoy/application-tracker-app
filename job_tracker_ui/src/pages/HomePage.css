@@ -7,6 +7,33 @@
     align-items: center;
 }
 
+/* Blue */
+.status-applied {
+    background-color: #2196F3;
+  }
+  
+/* Amber */
+.status-waitingtohearback {
+    background-color: #FFC107;
+  }
+  
+/* Green */
+.status-interviewed {
+    background-color: #6cb668;
+  }
+  
+/* Cyan */
+.status-offeraccepted {
+    background-color: #00ff26;
+  }
+  
+/* Red */
+.status-offerdenied,
+.status-rejected {
+    background-color: #F44336;
+  }
+  
+
 /* Styles for the table */
 table {
     width: 100%;

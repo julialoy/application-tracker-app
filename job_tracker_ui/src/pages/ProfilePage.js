@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar/Navbar';
+import './EditPages.css'
 
 export const ProfilePage = ( )  => {
     const [currUser, setCurrUser] = useState({});
@@ -91,10 +92,11 @@ export const ProfilePage = ( )  => {
     return (
         <div>
             <Navbar />
-            <div>
-                <h2>Hello, {currUser.first_name}!</h2>
-                <p>Click into any box to edit your profile settings</p>
+            <div className='editpage'>
                 <form onSubmit={editUser}>
+                <h2>Hello, {currUser.first_name}!</h2>
+                <hr /> {/* line */}
+                <p>Click into any box to edit your profile settings</p>
                     <label htmlFor="userFirstName">
                         First Name *
                     </label>
@@ -128,7 +130,8 @@ export const ProfilePage = ( )  => {
                         onChange={evt => setUserEmail(evt.target.value)}
                         required
                     />
-                    <p>Change your password:</p>
+                    <h5>Change your password:</h5>
+                    <hr /> {/* line */}
                     <label htmlFor="newPassword">
                         New Password *
                     </label>
