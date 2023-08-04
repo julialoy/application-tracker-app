@@ -468,7 +468,26 @@ app.post('/skills', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.post('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
+app.post('/search-skill', ensureLoggedIn, (req, res) => {
+    const userId = req.session.user.user_id;
+    const searchName = req.body.skillName.trimStart().trimEnd().toLowerCase();
+    model.findSkill(userId, searchName)
+       .then(result => {
+           if (result.error) {
+               res.status(400).setHeader('content-type', 'application/json')
+                   .json({error: `Skill ${req.body.skillName} not found.`});
+           } else {
+               res.status(201).setHeader('content-type', 'application/json')
+                   .json(result);
+           }
+       })
+       .catch(error => {
+           res.status(500).setHeader('content-type', 'application/json')
+               .json({error: "Internal server error."});
+       });
+});
+
+app.put('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
     const skillId = req.params.skill_id;
     const editSkillTitle = req.body.editSkillTitle;
     const editSkillDesc = req.body.editSkillDesc;

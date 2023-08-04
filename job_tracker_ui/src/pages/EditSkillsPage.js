@@ -27,7 +27,7 @@ export const EditSkillsPage = ({ targetSkill }) => {
         evt.preventDefault();
         const changedSkill = {editSkillTitle, editSkillDesc};
         const response = await fetch(`/edit-skill/${editSkillId}`, {
-            method: 'POST',
+            method: 'PUT',
             body: JSON.stringify(changedSkill),
             headers: {
                 'Content-Type': 'application/json',

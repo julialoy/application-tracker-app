@@ -36,19 +36,46 @@ const authenticateUser = async (username, password) => {
     }
 }
 
+// Returns NUMBER of total jobs found for a single user in DB
+const getNumJobs = async (userId) => {
+    const getJobsQuery = {
+        text: 'SELECT * FROM "Jobs" WHERE user_id = $1',
+        values: [userId]
+    }
+    const result = await pool.query(getJobsQuery);
+    return result.rows.length;
+}
+
+// Returns all jobs tagged with given skill id
+const getJobsPerSkill = async (skillId) => {
+    const jobsPerSkillQuery = {
+        text: 'SELECT * FROM "Skills_Jobs" WHERE "Skills_skill_id" = $1',
+        values: [skillId]
+    }
+    return await pool.query(jobsPerSkillQuery);
+}
+
 // Calculates number of jobs each skill is tagged in and adds that property to skills object
 const countJobsPerSkill = async (skills) => {
     for (let i = 0; i < skills.length; i++) {
         let currSkillId = skills[i].skill_id;
-        const getNumJobsPerSkill = {
-            text: 'SELECT * FROM "Skills_Jobs" WHERE "Skills_skill_id" = $1',
-            values: [currSkillId]
-        }
-        const result = await pool.query(getNumJobsPerSkill);
+        const result = await getJobsPerSkill(currSkillId);
         if (result.rows) {
             skills[i].num_jobs = result.rows.length
         } else {
             skills[i].num_jobs = 0;
+        }
+    }
+}
+
+// Calculates percent of jobs that are tagged with a particular skill and adds that property to skills object
+const percentJobsPerSkill = async (userId, skills) => {
+    const totalUserJobs = await getNumJobs(userId);
+    for (let i = 0; i < skills.length; i++) {
+        let currSkillId = skills[i].skill_id;
+        const result = await getJobsPerSkill(currSkillId);
+        if (result.rows) {
+            skills[i].percent_jobs = Math.round((result.rows.length / totalUserJobs) * 100);
         }
     }
 }
@@ -75,6 +102,31 @@ const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
     } else {
         return {error: "Unable to create user."}
     }
+}
+
+// Finds all skills with titles that contain the search string provided
+// by the user; case insensitive
+const findSkill = async (userId, searchName) => {
+    console.log(`Finding skill: ${searchName}, user ${userId}`);
+    const findSkillQuery = {
+        text: 'SELECT * FROM "Skills" WHERE user_id = $1 AND LOWER(skill_title) LIKE $2',
+        values: [userId, '%' + searchName + '%']
+    }
+    console.log(`QUERY: ${findSkillQuery.text} ${findSkillQuery.values}`);
+    const result = await pool.query(findSkillQuery);
+    console.log(`RESULT: ${result}`);
+    if (result.rows) {
+        console.log(`Original result: ${result.rows}`);
+        await countJobsPerSkill(result.rows);
+        console.log(`Count jobs result: ${result.rows}`);
+        await percentJobsPerSkill(userId, result.rows);
+        console.log(`Percent jobs result: ${result.rows}`);
+        return result.rows;
+    } else {
+        console.log("Can't get skill");
+        return {error: "Unable to find skill."};
+    }
+
 }
 
 const getSkills = async (userId) => {
@@ -168,5 +220,5 @@ const getUserData = async (userId) => {
 
 export {
     pool, addSkill, addUser, authenticateUser,
-    deleteSkill, editSkill, getSkills, getUserData, editProfile
+    deleteSkill, editSkill, findSkill, getSkills, getUserData, editProfile
 };
