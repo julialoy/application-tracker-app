@@ -58,13 +58,15 @@ export const HomePage = () => {
 
     if (!firstName) { // If firstName is null, user is not logged in
         return (
-            <div>
+            <div >
                 <Navbar />
                 <Header />
-                <p>You must be logged in to view this page.</p>
-                <Link to="/register">Register</Link>
-                <br />
-                <Link to="/login">Log in</Link>
+                <div className='HomePage'>
+                    <p>You must be logged in to view this page.</p>
+                    <Link to="/register">Register</Link>
+                    <br />
+                    <Link to="/login">Log in</Link>
+                </div>
                 <Footer />
             </div>
         );
