@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import './RegisterPage.css';
 
 export const RegisterPage = ( ) => {
     const [email, setEmail] = useState('');
@@ -7,6 +9,7 @@ export const RegisterPage = ( ) => {
     const [pwordConfirm, setPwordConfirm] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [showPasswordTooltip, setShowPasswordTooltip] = useState(false);
 
     const navigate = useNavigate();
 
@@ -47,11 +50,18 @@ export const RegisterPage = ( ) => {
                 resetRegForm();
             }
         }
-    }
+    };
+
+    const togglePasswordTooltip = () => {
+        setShowPasswordTooltip(!showPasswordTooltip);
+    };
 
     return (
-        <div>
-            <form onSubmit={registerUser}>
+        <div className='register-page-container'>
+            {/* Logo */}
+            <img src="/TJTLogo.png" alt="TJT Logo" className="registerlogo" />
+            <form className="register-form" onSubmit={registerUser}>
+                <h3>Welcome to Job Tracker!</h3>
                 <label htmlFor="userFirstName">
                     First Name *
                 </label>
@@ -91,9 +101,24 @@ export const RegisterPage = ( ) => {
                 />
                 <label htmlFor="userPassword">
                     Password * <br />
-                    (Must be at least 8 characters long and contain at least 1 of the following:
-                    uppercase letter, lowercase letter, number, special character)
                 </label>
+
+                {/* Password Tooltip */}
+                <div className="password-tooltip" onClick={togglePasswordTooltip}>
+                <span>?</span>
+                {showPasswordTooltip && (
+                    <div className="tooltip-content">
+                    Must be at least 8 characters long and contain:
+                    <ul>
+                        <li>At least one uppercase letter</li>
+                        <li>At least one lowercase letter</li>
+                        <li>At least one number</li>
+                        <li>At least one special character</li>
+                    </ul>
+                    </div>
+                )}
+                </div>
+
                 <input
                     id="userPassword"
                     type="password"
@@ -122,6 +147,10 @@ export const RegisterPage = ( ) => {
                 >
                     Register
                 </button>
+                <p>
+                Already have an account?{' '}
+                <Link to="/login">Login now!</Link>
+                </p>
             </form>
         </div>
     )

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import './RegisterPage.css';
 
 export const LoginPage = ( ) => {
     const [email, setEmail] = useState('');
@@ -32,8 +34,11 @@ export const LoginPage = ( ) => {
     }
 
     return (
-        <div>
-            <form id="loginForm">
+        <div className="register-page-container">
+            {/* Logo */}
+            <img src="/TJTLogo.png" alt="TJT Logo" className="registerlogo" />
+            <form className="register-form" id="loginForm">
+                <h3>Welcome Back!</h3>
                 <label htmlFor="userEmail">
                     Email address
                 </label>
@@ -65,6 +70,10 @@ export const LoginPage = ( ) => {
                 >
                     Login
                 </button>
+                <p>
+                Don't have an account?{' '}
+                <Link to="/Register">Register now!</Link>
+                </p>
             </form>
         </div>
     )

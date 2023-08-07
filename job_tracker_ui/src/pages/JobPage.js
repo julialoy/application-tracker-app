@@ -163,10 +163,12 @@ function JobPage() {
             <div>
                 <Navbar />
                 <Header />
+                <div className="HomePage">
                 <p>You must be logged in to view this page.</p>
                 <Link to="/register">Register</Link>
                 <br />
                 <Link to="/login">Log in</Link>
+                </div>
                 <Footer />
             </div>
         );

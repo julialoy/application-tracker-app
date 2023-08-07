@@ -1,0 +1,110 @@
+/* RegisterPage.css */
+.register-page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .registerlogo {
+    height: 100px;
+    padding-top: 0px;
+    padding-bottom: 20px;
+  }
+  
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    max-width: 500px;
+  }
+
+  .register-page-container form h3 {
+    font-size: 24px; 
+    font-weight: bold;
+    color: #333;
+    background-color: #f0f0f0;
+  }
+  
+  .register-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .register-form input[type='text'],
+  .register-form input[type='email'],
+  .register-form input[type='password'] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .register-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #3b5998;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .register-form button:hover {
+    background-color: #2d4373;
+  }
+
+  .register-page-container form p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .register-page-container form p a {
+    color: #3b5998;
+    text-decoration: none;
+  }
+  
+  .register-page-container form p a:hover {
+    text-decoration: underline;
+  }
+
+  .password-tooltip {
+    position: relative;
+    display: inline-block;
+    margin-top: 5px;
+  }
+  
+  .password-tooltip span {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    padding: 4px 8px;
+    font-weight: bold;
+  }
+
+  .tooltip-content {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f9f9f9;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 16px;
+    width: 300px; /* Adjust the width as needed */
+    z-index: 1;
+    display: none;
+  }
+  
+  .password-tooltip:hover .tooltip-content {
+    display: block;
+  }
