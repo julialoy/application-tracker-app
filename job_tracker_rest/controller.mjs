@@ -1,21 +1,28 @@
 import 'dotenv/config';
+import { createRequire } from 'module';
 import * as model from './model.mjs';
 import express from 'express';
 import crypto from 'crypto';
 import expressSession from 'express-session';
 
+const require = createRequire(import.meta.url);
 const secret = crypto.randomBytes(64).toString('hex');
-console.log(secret);
 
 // Set up environment and constants
 const PORT = process.env.PORT;
+const cors = require('cors');
+const corsOptions = {
+    origin: 'http://ec2-44-215-13-166.compute-1.amazonaws.com',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+};
 const app = express();
+app.use(cors(corsOptions));
 app.use(express.json());
-
 app.use(expressSession({
     secret: secret,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
   }));
 
 // Validate password per specs:
@@ -56,8 +63,8 @@ function ensureLoggedIn(req, res, next) {
 }
 
 // Routes here
-
-app.post('/register', (req, res) => {
+app.options('*', cors());   // Enables CORS preflight for all routes: https://expressjs.com/en/resources/middleware/cors.html
+app.post('/api/register', (req, res) => {
    const userFirstName = req.body.firstName;
    const userLastName = req.body.lastName;
    const email = req.body.email;
@@ -71,8 +78,9 @@ app.post('/register', (req, res) => {
                 } else {
                     // Upon successful registration user is logged in
                     req.session.user = result;
-                    res.status(201).setHeader('content-type', 'application/json')
-                        .json({user: result});
+                    // res.status(201).setHeader('content-type', 'application/json')
+                    //     .json({user: result});
+                    res.status(201).send(req.session.sessionID);
                 }
                })
            .catch(error => {
@@ -85,7 +93,8 @@ app.post('/register', (req, res) => {
    }
 });
 
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
+    console.log(req.body);
     const email = req.body.username;
     const password = req.body.password;
 
@@ -96,7 +105,11 @@ app.post('/login', (req, res) => {
             .then(user => {
                 if (user) {
                     req.session.user = user;
-                    res.redirect('/');
+                    console.log(req.session);
+                    // res.redirect('/');
+                    res.status(200).setHeader('content-type', 'application/json')
+                        .json({ status: 200, message: 'Login successful' });
+                    //res.send(req.session.sessionID);
                 } else {
                     res.status(400).json({ error: 'Authentication failed.' });
                 }
@@ -112,325 +125,252 @@ app.post('/login', (req, res) => {
 });
 
 
-app.get('/user/firstName', (req, res) => {
+app.get('/api/user/firstName', (req, res) => {
     if (req.session.user && req.session.user.first_name) { 
-        res.json({ firstName: req.session.user.first_name }); 
+        res.json({ firstName: req.session.user.first_name });
     } else {
         res.status(400).json({ error: 'User not logged in.' });
     }
 });
 
-app.post('/logout', ensureLoggedIn, (req, res) => {
+app.get('/api/logout', ensureLoggedIn, (req, res) => {
    try {
        req.session.user = null;
-       res.redirect('/');
+       // req.session.destroy(err => {
+       //     console.log(`Unable to log out: ${err}`);
+       // });
+       // res.redirect('/');
+       // res.status(200).setHeader('content-type', 'application/json')
+       //     .json({ status: 200, message: "Logout successful" });
+       res.status(200).send(req.session.sessionID);
    } catch (err) {
        res.status(500).json({error: "Error during logout."});
    }
 });
 
 app.get('/', (req, res) => {
-    res.render('home');
+    // res.render('home');
+    res.status(200);
 });
 
 // Fetch all jobs for the logged in user
-app.get('/jobs', ensureLoggedIn, (req, res) => {
-    const user_id = req.session.user.user_id;
-    console.log(user_id);
-
-    model.pool.query(
-        'SELECT * FROM "Jobs" WHERE user_id = $1',
-        [user_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+app.get('/api/jobs', ensureLoggedIn, (req, res) => {
+    const userId = req.session.user.user_id;
+    console.log(`Jobs user id: ${userId}`);
+    model.getJobs(userId)
+        .then(result => {
+            if (result.error) {
+                res.status(400).setHeader('content-type', 'application/json')
+                    .json({ error: "Unable to retrieve jobs" });
             } else {
-                res.status(200).json(results.rows);
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json(result.jobs);
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
 // Fetch skills for a specific job
-app.get('/jobs/:job_id/skills', ensureLoggedIn, (req, res) => {
+app.get('/api/jobs/:job_id/skills', ensureLoggedIn, (req, res) => {
     const { job_id } = req.params;
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-        `SELECT "Jobs".job_id, 
-                ARRAY(
-                    SELECT "Skills".skill_title
-                    FROM "Skills" 
-                    INNER JOIN "Skills_Jobs" ON "Skills".skill_id = "Skills_Jobs"."Skills_skill_id"
-                    WHERE "Skills_Jobs"."Jobs_job_id" = "Jobs".job_id
-                ) AS skills
-         FROM "Jobs" WHERE user_id = $1 AND job_id = $2`,
-        [user_id, job_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.getJobSkills(user_id, job_id)
+        .then(result => {
+            if (result.error) {
+                res.status(404).setHeader('content-type', 'application/json')
+                    .json({ message: 'Job not found' });
             } else {
-                if (results.rows.length > 0) {
-                    res.status(200).json(results.rows[0]); // Send back the first (and only) result
-                } else {
-                    res.status(404).json({ message: 'Job not found' });
-                }
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json(result.jobSkills);
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
-app.get('/jobs/:job_id', ensureLoggedIn, (req, res) => {
+// Retrieve specific job
+app.get('/api/jobs/:job_id', ensureLoggedIn, (req, res) => {
     const { job_id } = req.params;
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-        'SELECT * FROM "Jobs" WHERE user_id = $1 AND job_id = $2',
-        [user_id, job_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.findJob(user_id, job_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json(result.error);
             } else {
-                if (results.rows.length > 0) {
-                    res.status(200).json(results.rows[0]);
-                } else {
-                    res.status(404).json({ message: 'Job not found' });
-                }
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json(result);
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
 // Create a new job
-app.post('/jobs', ensureLoggedIn, (req, res) => {
+app.post('/api/jobs', ensureLoggedIn, (req, res) => {
     const { job_title, company, location, status, date_applied, notes, skills } = req.body;
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-        'INSERT INTO "Jobs" (job_title, company, location, status, date_applied, notes, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        [job_title, company, location, status, date_applied, notes, user_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.addJob(job_title, company, location, status, date_applied, notes, skills, user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({ error: "Internal server error" });
             } else {
-                const job = results.rows[0];
-                const jobId = job.job_id;
-                
-                // Insert each associated skill to the Skills_Jobs table
-                skills.forEach(skillId => {
-                    model.pool.query(
-                        'INSERT INTO "Skills_Jobs" ("Skills_skill_id", "Jobs_job_id") VALUES ($1, $2)',
-                        [skillId, jobId],
-                        (error, results) => {
-                            if (error) {
-                                console.error(error);
-                            }
-                        }
-                    );
-                });
-
-                res.status(201).json(job);
+                res.status(201).setHeader('conent-type', 'application/json')
+                    .json(result);
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
 // Update an existing job
-app.put('/jobs/edit/:job_id', ensureLoggedIn, async (req, res) => {
+app.put('/api/jobs/edit/:job_id', ensureLoggedIn, async (req, res) => {
     const { job_id } = req.params;
     const { job_title, company, location, status, date_applied, notes, skills } = req.body;
     const user_id = req.session.user.user_id;
-
-    try {
-        // Update job in Jobs table
-        await model.pool.query(
-            'UPDATE "Jobs" SET job_title = $1, company = $2, location = $3, status = $4, date_applied = $5, notes = $6 WHERE job_id = $7 AND user_id = $8',
-            [job_title, company, location, status, date_applied, notes, job_id, user_id]
-        );
-
-        // Delete existing skills for this job in Skills_Jobs table
-        await model.pool.query(
-            'DELETE FROM "Skills_Jobs" WHERE "Jobs_job_id" = $1',
-            [job_id]
-        );
-
-        // Add new skills for this job in Skills_Jobs table
-        for (let skillTitle of skills) {
-            const result = await model.pool.query(
-                'SELECT skill_id FROM "Skills" WHERE skill_title = $1',
-                [skillTitle]
-            );
-            
-            if(result.rows.length > 0){
-                let skillId = result.rows[0].skill_id;
-                await model.pool.query(
-                    'INSERT INTO "Skills_Jobs" ("Skills_skill_id", "Jobs_job_id") VALUES ($1, $2)',
-                    [skillId, job_id]
-                );
+    model.editJob(job_title, company, location, status, date_applied, notes, skills, job_id, user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({ error: "Internal server error" });
             } else {
-                console.error("Skill not found: ", skillTitle);
-                // Handle the error or continue with other skills
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json(result);
             }
-        }
-
-        // Fetch the updated job
-        const results = await model.pool.query(
-            'SELECT * FROM "Jobs" WHERE job_id = $1 AND user_id = $2',
-            [job_id, user_id]
-        );
-
-        console.log("Updated job: ", results.rows[0]);
-        res.status(200).json(results.rows[0]);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
 
 // Delete an existing job
-app.delete('/jobs/:job_id', ensureLoggedIn, (req, res) => {
+app.delete('/api/jobs/:job_id', ensureLoggedIn, (req, res) => {
     const { job_id } = req.params;
     const user_id = req.session.user.user_id;
-
-    // Delete from Skills_Jobs table
-    model.pool.query(
-        'DELETE FROM "Skills_Jobs" WHERE "Jobs_job_id" = $1',
-        [job_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.deleteJob(job_id, user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({error: "Internal server error"});
             } else {
-                // Delete from Jobs table
-                model.pool.query(
-                    'DELETE FROM "Jobs" WHERE job_id = $1 AND user_id = $2',
-                    [job_id, user_id],
-                    (error, results) => {
-                        if (error) {
-                            console.error(error);
-                            res.status(500).json({ error: 'Internal server error' });
-                        } else {
-                            res.status(200).json({ status: 'success', message: 'Job deleted' });
-                        }
-                    }
-                );
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json({ status: 'success', message: 'Job deleted' });
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({error: "Internal server error"});
+        });
 });
 
-app.get('/contacts', (req, res) => {
+app.get('/api/contacts', ensureLoggedIn, (req, res) => {
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-        'SELECT * FROM "Contacts" WHERE user_id = $1',
-        [user_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.getContacts(user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({error: "Internal server error" });
             } else {
-                res.status(200).json(results.rows);
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json(result);
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({error: "Internal server error" });
+        });
 });
 
-app.post('/contacts',ensureLoggedIn,(req, res) => {
+app.post('/api/contacts', ensureLoggedIn, (req, res) => {
     const { first_name, last_name, email, company, notes } = req.body;
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-      'INSERT INTO "Contacts" (first_name, last_name, email, company, notes, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [first_name, last_name, email, company, notes, user_id],
-      (error, results) => {
-        if (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Internal server error' });
-        } else {
-          res.status(201).json(results.rows[0]);
-        }
-      }
-    );
+    model.addContact(first_name, last_name, email, company, notes, user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({ error: "Internal server error" });
+            } else {
+                res.status(201).setHeader('content-type', 'application/json')
+                    .json(result);
+            }
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
-app.put('/contacts/edit/:contact_id', ensureLoggedIn,(req, res) => {
+app.put('/api/contacts/edit/:contact_id', ensureLoggedIn,(req, res) => {
     const { contact_id } = req.params;
     const { first_name, last_name, email, company, notes } = req.body;
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-        'UPDATE "Contacts" SET first_name = $1, last_name = $2, email = $3, company = $4, notes = $5 WHERE contact_id = $6 AND user_id = $7',
-        [first_name, last_name, email, company, notes, contact_id, user_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.editContact(first_name, last_name, email, company, notes, contact_id, user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({ error: "Internal server error" });
             } else {
-                model.pool.query(
-                    'SELECT * FROM "Contacts" WHERE contact_id = $1 AND user_id = $2',
-                    [contact_id, user_id],
-                    (error, results) => {
-                        if (error) {
-                            console.error(error);
-                            res.status(500).json({ error: 'Internal server error' });
-                        } else {
-                            console.log("Updated contact: ", results.rows[0]);
-                            res.status(200).json(results.rows[0]);
-                        }
-                    }
-                );
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json(result);
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
-app.get('/contacts/:contact_id', ensureLoggedIn, (req, res) => {
+app.get('/api/contacts/:contact_id', ensureLoggedIn, (req, res) => {
     const { contact_id } = req.params;
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-        'SELECT * FROM "Contacts" WHERE contact_id = $1 AND user_id = $2',
-        [contact_id, user_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.findContact(contact_id, user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(404).setHeader('content-type', 'application/json')
+                    .json({ error: "Contact not found" });
             } else {
-                if (results.rows.length > 0) {
-                    res.status(200).json(results.rows[0]);
-                } else {
-                    res.status(404).json({ error: 'Contact not found' });
-                }
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json(result);
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
-app.delete('/contacts/:contact_id',ensureLoggedIn, (req, res) => {
+app.delete('/api/contacts/:contact_id',ensureLoggedIn, (req, res) => {
     const { contact_id } = req.params;
     const user_id = req.session.user.user_id;
-
-    model.pool.query(
-        'DELETE FROM "Contacts" WHERE contact_id = $1 AND user_id = $2',
-        [contact_id, user_id],
-        (error, results) => {
-            if (error) {
-                console.error(error);
-                res.status(500).json({ error: 'Internal server error' });
+    model.deleteContact(contact_id, user_id)
+        .then(result => {
+            if (result.error) {
+                res.status(500).setHeader('content-type', 'application/json')
+                    .json({ error: "Internal server error" });
             } else {
-                res.status(200).json({ status: 'success', message: 'Contact deleted' });
+                res.status(200).setHeader('content-type', 'application/json')
+                    .json({ status: 'success', message: 'Contact deleted' });
             }
-        }
-    );
+        })
+        .catch(error => {
+            res.status(500).setHeader('content-type', 'application/json')
+                .json({ error: "Internal server error" });
+        });
 });
 
-app.get('/skills', ensureLoggedIn, (req, res ) => {
+app.get('/api/skills', ensureLoggedIn, (req, res ) => {
     const userId = req.session.user.user_id;
     model.getSkills(userId)
         .then(result => {
@@ -448,7 +388,7 @@ app.get('/skills', ensureLoggedIn, (req, res ) => {
         });
 });
 
-app.post('/skills', ensureLoggedIn, (req, res) => {
+app.post('/api/skills', ensureLoggedIn, (req, res) => {
     const skillTitle = req.body.newSkillTitle;
     const skillDesc = req.body.newSkillDesc;
     const userId = req.session.user.user_id;
@@ -468,7 +408,7 @@ app.post('/skills', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.post('/search-skill', ensureLoggedIn, (req, res) => {
+app.post('/api/search-skill', ensureLoggedIn, (req, res) => {
     const userId = req.session.user.user_id;
     const searchName = req.body.skillName.trimStart().trimEnd().toLowerCase();
     model.findSkill(userId, searchName)
@@ -487,7 +427,7 @@ app.post('/search-skill', ensureLoggedIn, (req, res) => {
        });
 });
 
-app.put('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
+app.put('/api/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
     const skillId = req.params.skill_id;
     const editSkillTitle = req.body.editSkillTitle;
     const editSkillDesc = req.body.editSkillDesc;
@@ -507,9 +447,10 @@ app.put('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.delete('/skills/:skill_id', ensureLoggedIn, (req, res) => {
+app.delete('/api/skills/:skill_id', ensureLoggedIn, (req, res) => {
    const skillId = req.params.skill_id;
-   model.deleteSkill(skillId)
+   const userId = req.session.user.user_id;
+   model.deleteSkill(skillId, userId)
        .then(result => {
            if (result.error) {
                res.status(400).setHeader('content-type', 'application/json')
@@ -525,7 +466,7 @@ app.delete('/skills/:skill_id', ensureLoggedIn, (req, res) => {
        });
 });
 
-app.get('/edit-profile/', ensureLoggedIn, (req, res) => {
+app.get('/api/edit-profile/', ensureLoggedIn, (req, res) => {
    const userId = req.session.user.user_id;
     model.getUserData(userId)
         .then(result => {
@@ -543,7 +484,7 @@ app.get('/edit-profile/', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.post('/edit-profile/:user_id', ensureLoggedIn, (req, res) => {
+app.post('/api/edit-profile/:user_id', ensureLoggedIn, (req, res) => {
     const userId = req.params.user_id;
     const userFirstName = req.body.userFirstName;
     const userLastName = req.body.userLastName;
