@@ -41,7 +41,7 @@ export const RegisterPage = ( ) => {
             });
             if (response.status === 201) {
                 alert("Registration successful");
-                navigate('/jobs');
+                navigate('/');
             } else if (response.status === 400) {
                 alert("One or more of the fields were invalid or an account with that email already exists");
                 resetRegForm();

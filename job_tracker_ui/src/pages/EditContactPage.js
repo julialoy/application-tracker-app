@@ -88,7 +88,7 @@ export const EditContactPage = () => {
                 type="text"
                 value={contact.notes}
                 onChange={(e) => setContact({ ...contact, notes: e.target.value })}
-                placeholder="notes" required
+                placeholder="notes"
               />
               <button type="submit">Save Changes</button>
               <button onClick={() => navigate('/contacts')} className="back-button">
