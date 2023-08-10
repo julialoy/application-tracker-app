@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import SkillResult from './SkillResult';
 
 export const SkillSearch = () => {
@@ -13,19 +14,18 @@ export const SkillSearch = () => {
     const handleSkillSearch = async (evt) => {
         evt.preventDefault();
         const skillToSearch = {skillName};
-        const results = await fetch('/search-skill', {
-            method: 'POST',
-            body: JSON.stringify(skillToSearch),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (results.status === 201) {
-            const jsonResults = await results.json();
-            setSearchResults(jsonResults);
-        } else {
-            setSearchResults([]);
-        }
+        axios.post(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/search-skill`, skillToSearch, {withCredentials: true})
+            .then(response => {
+                if (response.status === 201) {
+                    setSearchResults(response.data);
+                } else {
+                    setSearchResults([]);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                setSearchResults([]);
+            });
     }
 
     return (

@@ -23,7 +23,7 @@ export const EditJobPage = () => {
     };
 
     useEffect(() => {
-        axios.get('/skills')
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills', {withCredentials: true})
             .then(response => {
                 setSkills(response.data);
             })
@@ -33,7 +33,7 @@ export const EditJobPage = () => {
     }, []);
 
     useEffect(() => {
-        axios.get(`/jobs/${id}`)
+        axios.get(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/jobs/${id}`, {withCredentials: true})
             .then(response => {
                 const job = response.data;
                 setNewJob({
@@ -53,7 +53,7 @@ export const EditJobPage = () => {
 
     const updateJob = (event) => {
         event.preventDefault();
-        axios.put(`/jobs/edit/${id}`, newJob)
+        axios.put(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/jobs/edit/${id}`, newJob, {withCredentials: true})
             .then(response => {
                 navigate('/jobs');
             })
