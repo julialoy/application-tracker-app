@@ -9,7 +9,7 @@ export const EditContactPage = () => {
     const { id } = useParams();
 
     useEffect(() => {
-        axios.get(`/contacts/${id}`)
+        axios.get(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts/${id}`, {withCredentials: true})
             .then(response => {
                 setContact(response.data);
             })
@@ -20,7 +20,7 @@ export const EditContactPage = () => {
 
     const editingContact = (event) => {
         event.preventDefault();
-        axios.put(`/contacts/edit/${id}`, contact)
+        axios.put(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts/edit/${id}`, contact, {withCredentials: true})
             .then(response => {
                 navigate('/contacts');
             })

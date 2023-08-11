@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './RegisterPage.css';
 
 export const RegisterPage = ( ) => {
@@ -32,23 +33,24 @@ export const RegisterPage = ( ) => {
             resetRegForm();
         } else {
             const newUser = {email, pword, pwordConfirm, firstName, lastName};
-            const response = await fetch('/register', {
-                method: 'POST',
-                body: JSON.stringify(newUser),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (response.status === 201) {
-                alert("Registration successful");
-                navigate('/');
-            } else if (response.status === 400) {
-                alert("One or more of the fields were invalid or an account with that email already exists");
-                resetRegForm();
-            } else {
-                alert("Error encountered during registration. Try again.");
-                resetRegForm();
-            }
+            axios.post(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/register`, newUser, {withCredentials: true})
+                .then(response => {
+                    if (response.status === 201) {
+                        alert("Registration successful");
+                        navigate('/');
+                    } else if (response.status === 400) {
+                        alert("One or more of the fields were invalid or an account with that email already exists");
+                        resetRegForm();
+                    } else {
+                        alert("Error encountered during registration. Try again.");
+                        resetRegForm();
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Error encountered during registration: Internal server error. Try again.");
+                    resetRegForm();
+                });
         }
     };
 

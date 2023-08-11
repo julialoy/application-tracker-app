@@ -13,20 +13,20 @@ export const HomePage = () => {
     const [contacts, setContacts] = useState([]);
     
     useEffect(() => {
-        axios.get('/user/firstName')
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/user/firstName', {withCredentials: true})
             .then(response => {
                 setFirstName(response.data.firstName);
             })
             .catch(error => console.error(error));
-        axios.get('/contacts')
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts', {withCredentials: true})
         .then(response => {
             setContacts(response.data);
         })
         .catch(error => console.error(error));
-        axios.get('/jobs')
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/jobs', {withCredentials: true})
             .then(response => {
-                const jobsWithSkillsPromises = response.data.map(job => 
-                    axios.get(`/jobs/${job.job_id}/skills`)
+                const jobsWithSkillsPromises = response.data.map(job =>
+                    axios.get(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/jobs/${job.job_id}/skills`, {withCredentials: true})
                         .then(res => {
                             return { ...job, skills: res.data || [] }
                         })
@@ -40,7 +40,7 @@ export const HomePage = () => {
             .catch(error => {
                 console.error(error);
             });
-        axios.get('/skills')
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills', {withCredentials: true})
         .then(response => {
             console.log(response.data)
             setSkills(response.data);

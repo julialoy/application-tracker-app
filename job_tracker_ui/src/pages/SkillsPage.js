@@ -30,13 +30,18 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }
 
     const onSkillDelete = async (skillId) => {
-        const response = await fetch(`/skills/${skillId}`, {method: 'DELETE'});
-        if (response.status === 204) {
-            alert("Skill deleted");
-            fetchAllSkills();
-        } else {
-            alert("Unable to delete skill");
-        }
+        axios.delete(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills/${skillId}`, {withCredentials: true})
+            .then(response => {
+                if (response.status === 204) {
+                    fetchAllSkills();
+                } else {
+                    alert("Unable to delete skill");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Unable to delete skill: Internal server error");
+            });
     }
 
     // Loading of skills adapted from OSU CS 290 course material and other examples
@@ -55,31 +60,39 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }
 
     const fetchAllSkills = async () => {
-        const response = await fetch('/skills', {method: 'GET'});
-        const skillsData = await response.json();
-        setSkillsList(skillsData);
+        // const response = await fetch('/skills', {method: 'GET', mode: 'cors'});
+        // const skillsData = await response.json();
+        // setSkillsList(skillsData);
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills', {withCredentials: true})
+            .then(response => {
+                setSkillsList(response.data);
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     const addNewSkill = async (evt) => {
         evt.preventDefault()
         const newSkill = {newSkillTitle, newSkillDesc};
-        const response = await fetch('/skills', {
-            method: 'POST',
-            body: JSON.stringify(newSkill),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (response.status === 201) {
-            setIsAddOpen(false);
-            alert("Skill added");
-            resetSkillForm();
-            fetchAllSkills();
-        } else {
-            setIsAddOpen(false);
-            alert("Unable to add skill");
-            resetSkillForm();
-        }
+        axios.post('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills', newSkill, {withCredentials: true})
+            .then(response => {
+                if (response.status === 201) {
+                    setIsAddOpen(false);
+                    alert("Skill added");
+                    resetSkillForm();
+                    fetchAllSkills();
+                } else {
+                    setIsAddOpen(false);
+                    alert("Unable to add skill");
+                    resetSkillForm();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Unable to add skill: Internal server error");
+                resetSkillForm();
+            });
     }
 
     useEffect(() => {
@@ -87,7 +100,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }, []);
 
     useEffect(() => {
-        axios.get('/user/firstName')
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/user/firstName', {withCredentials: true})
             .then(response => {
                 setFirstName(response.data.firstName);
             })

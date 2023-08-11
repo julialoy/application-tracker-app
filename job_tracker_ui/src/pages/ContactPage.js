@@ -1,16 +1,13 @@
 import React, { useState,useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import Modal from 'react-modal';
 import axios from 'axios';
 import Navbar from '../components/navbar/Navbar';
-import { useNavigate } from 'react-router-dom';
-import Modal from 'react-modal';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Link } from 'react-router-dom';
 import './ContactPage.css'
 
-
 Modal.setAppElement(document.getElementById('root'));
-
 
 function ContactPage() {
   const [userId, setUserId] = useState(null);
@@ -28,7 +25,7 @@ function ContactPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('/contacts')
+    axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts', {withCredentials: true})
         .then(response => {
           setUserId(response.data);
         })
@@ -38,7 +35,7 @@ function ContactPage() {
 }, []);
 
   const fetchContacts = () => {
-    axios.get('/contacts')
+    axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts', {withCredentials: true})
         .then(response => {
           setContacts(response.data);
         })
@@ -52,7 +49,7 @@ function ContactPage() {
 }, []);
 
   useEffect(() => {
-    axios.get('/user/firstName')
+    axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/user/firstName', {withCredentials: true})
         .then(response => {
             setFirstName(response.data.firstName);
         })
@@ -62,32 +59,30 @@ function ContactPage() {
 
   const addContact = async (event) => {
     event.preventDefault();
-    const response = await fetch('/contacts', { 
-      method: 'POST',
-      body: JSON.stringify(newContact),
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      });
-      if (response.status === 201) {
-        setIsAddOpen(false);
-        alert("Contact added");
-        resetContactForm();
-        fetchContacts();
-      } else {
-          setIsAddOpen(false);
-          console.error(response);
-          alert("Unable to add contact");
-          resetContactForm();
-      }
-
-
-
+    axios.post('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts', newContact, {withCredentials: true})
+        .then(response => {
+            if (response.status === 201) {
+                setIsAddOpen(false);
+                alert("Contact added");
+                resetContactForm();
+                fetchContacts();
+            } else {
+                setIsAddOpen(false);
+                console.error(response.data);
+                alert("Unable to add contact");
+                resetContactForm();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Unable to add contact: Internal server error");
+            resetContactForm();
+        });
   };
 
   const editContact = async (contact_id, updatedContact) => {
     try {
-      const response = await axios.put(`/contacts/edit/${contact_id}`, updatedContact);
+      const response = await axios.put(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts/edit/${contact_id}`, updatedContact, {withCredentials: true});
       setContacts(contacts.map((contact) => (contact.contact_id === contact_id ? updatedContact : contact)));
       setEditingContact(null);
     } catch (error) {
@@ -97,14 +92,14 @@ function ContactPage() {
 
   const deleteContact = async (contact_id) => {
     try {
-      await axios.delete(`/contacts/${contact_id}`);
+      await axios.delete(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts/${contact_id}`, {withCredentials: true});
       setContacts(contacts.filter((contact) => contact.contact_id !== contact_id));
     } catch (error) {
       console.error(error);
     }};
 
     useEffect(() => {
-        axios.get('/contacts')
+        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts', {withCredentials: true})
             .then(response => {
                 setContacts(response.data);
             })

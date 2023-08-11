@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import './RegisterPage.css';
+import axios from 'axios';
 
 export const LoginPage = ( ) => {
     const [email, setEmail] = useState('');
@@ -17,20 +18,21 @@ export const LoginPage = ( ) => {
     const loginUser = async (evt) => {
         evt.preventDefault();
         const user = {username: email, password: pword};
-        const response = await fetch('/login', {
-            method: 'POST',
-            body: JSON.stringify(user),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        if (response.status === 200) {
-            alert("Login successful");
-            navigate('/');
-        } else {
-            alert("Error encountered during login. Try again.");
-            resetLoginForm();
-        }
+        axios.post(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/login`, user, {withCredentials: true})
+            .then(result => {
+                if (result.status === 200) {
+                    resetLoginForm();
+                    alert("Login successful");
+                    navigate('/');
+                } else {
+                    alert("Error encountered during login. Try again.");
+                    resetLoginForm();
+                }
+            })
+            .catch(error => {
+                alert("Internal server error");
+                console.error(error);
+            });
     }
 
     return (
