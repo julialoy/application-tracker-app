@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import './RegisterPage.css';
 
 export const RegisterPage = ( ) => {
@@ -33,7 +34,7 @@ export const RegisterPage = ( ) => {
             resetRegForm();
         } else {
             const newUser = {email, pword, pwordConfirm, firstName, lastName};
-            axios.post(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/register`, newUser, {withCredentials: true})
+            axInst.post(`register`, newUser, {withCredentials: true})
                 .then(response => {
                     if (response.status === 201) {
                         alert("Registration successful");
