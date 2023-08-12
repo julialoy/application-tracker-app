@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import Modal from 'react-modal';
+import axInst from '../axios_instance';
 import Navbar from '../components/navbar/Navbar';
 import SkillsHeader from '../components/Skills/SkillsHeader';
 import Skills from '../components/Skills/Skills';
 import SkillSearch from '../components/Skills/SkillSearch';
-import Modal from 'react-modal';
-import axios from 'axios';
+// import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './SkillsPage.css';
@@ -30,7 +31,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }
 
     const onSkillDelete = async (skillId) => {
-        axios.delete(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills/${skillId}`, {withCredentials: true})
+        axInst.delete(`skills/${skillId}`, {withCredentials: true})
             .then(response => {
                 if (response.status === 204) {
                     fetchAllSkills();
@@ -63,7 +64,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
         // const response = await fetch('/skills', {method: 'GET', mode: 'cors'});
         // const skillsData = await response.json();
         // setSkillsList(skillsData);
-        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills', {withCredentials: true})
+        axInst.get('skills', {withCredentials: true})
             .then(response => {
                 setSkillsList(response.data);
             })
@@ -75,7 +76,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
     const addNewSkill = async (evt) => {
         evt.preventDefault()
         const newSkill = {newSkillTitle, newSkillDesc};
-        axios.post('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills', newSkill, {withCredentials: true})
+        axInst.post('skills', newSkill, {withCredentials: true})
             .then(response => {
                 if (response.status === 201) {
                     setIsAddOpen(false);
@@ -100,7 +101,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }, []);
 
     useEffect(() => {
-        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/user/firstName', {withCredentials: true})
+        axInst.get('user/firstName', {withCredentials: true})
             .then(response => {
                 setFirstName(response.data.firstName);
             })

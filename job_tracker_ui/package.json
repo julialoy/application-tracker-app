@@ -2,7 +2,7 @@
   "name": "job_tracker_ui",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://sunny-stroopwafel-0f6bcb.netlify.app",
+  "homepage": "http://ec2-44-215-13-166.compute-1.amazonaws.com/",
   "proxy": "http://localhost:5000/",
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",

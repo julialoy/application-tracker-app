@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
+import axInst from '../../axios_instance';
 import SkillResult from './SkillResult';
 
 export const SkillSearch = () => {
@@ -14,7 +15,10 @@ export const SkillSearch = () => {
     const handleSkillSearch = async (evt) => {
         evt.preventDefault();
         const skillToSearch = {skillName};
-        axios.post(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/search-skill`, skillToSearch, {withCredentials: true})
+        axInst.post(
+            `search-skill`,
+            skillToSearch,
+            {withCredentials: true})
             .then(response => {
                 if (response.status === 201) {
                     setSearchResults(response.data);
@@ -36,8 +40,10 @@ export const SkillSearch = () => {
                        value={skillName}
                        onChange={evt => setSkillName(evt.target.value)}
                 />
-                <button id="skillSearchBtn" type="submit">Search</button>
-                <button id="clearSearch" type="button" onClick={handleClearSearch}>Clear</button>
+                <div>
+                    <button id="skillSearchBtn" type="submit">Search</button>
+                    <button id="clearSearch" type="button" onClick={handleClearSearch}>Clear</button>
+                </div>
             </form>
             { searchResults.length > 0 ?
                 <div id="searchResults">

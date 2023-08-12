@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import Navbar from '../components/navbar/Navbar';
 import './EditPages.css'
 
@@ -32,7 +33,7 @@ export const ProfilePage = ( )  => {
     }
 
     const fetchUserInfo = async () => {
-        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/edit-profile', {withCredentials: true})
+        axInst.get('edit-profile', {withCredentials: true})
             .then(response => {
                 if (response.status === 200) {
                     setCurrUser(response.data.user);
@@ -73,7 +74,7 @@ export const ProfilePage = ( )  => {
         }
 
         const changedUser = {userFirstName, userLastName, userEmail, newPassword};
-        axios.post(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/edit-profile/${userId}`, changedUser, {withCredentials: true})
+        axInst.post(`edit-profile/${userId}`, changedUser, {withCredentials: true})
             .then(response => {
                 if (response.status === 201) {
                     alert("Profile updated!");

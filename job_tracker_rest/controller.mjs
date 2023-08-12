@@ -78,8 +78,6 @@ app.post('/api/register', (req, res) => {
                 } else {
                     // Upon successful registration user is logged in
                     req.session.user = result;
-                    // res.status(201).setHeader('content-type', 'application/json')
-                    //     .json({user: result});
                     res.status(201).send(req.session.sessionID);
                 }
                })
@@ -94,22 +92,16 @@ app.post('/api/register', (req, res) => {
 });
 
 app.post('/api/login', (req, res) => {
-    console.log(req.body);
     const email = req.body.username;
     const password = req.body.password;
-
-    console.log(`Username: ${email}, Password: ${password}`); // Logging the username and password
 
     try {
         model.authenticateUser(email, password)
             .then(user => {
                 if (user) {
                     req.session.user = user;
-                    console.log(req.session);
-                    // res.redirect('/');
                     res.status(200).setHeader('content-type', 'application/json')
                         .json({ status: 200, message: 'Login successful' });
-                    //res.send(req.session.sessionID);
                 } else {
                     res.status(400).json({ error: 'Authentication failed.' });
                 }
@@ -136,10 +128,6 @@ app.get('/api/user/firstName', (req, res) => {
 app.get('/api/logout', ensureLoggedIn, (req, res) => {
    try {
        req.session.user = null;
-       // req.session.destroy(err => {
-       //     console.log(`Unable to log out: ${err}`);
-       // });
-       // res.redirect('/');
        // res.status(200).setHeader('content-type', 'application/json')
        //     .json({ status: 200, message: "Logout successful" });
        res.status(200).send(req.session.sessionID);
@@ -149,7 +137,6 @@ app.get('/api/logout', ensureLoggedIn, (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    // res.render('home');
     res.status(200);
 });
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Navbar from '../components/navbar/Navbar';
@@ -13,20 +14,20 @@ export const HomePage = () => {
     const [contacts, setContacts] = useState([]);
     
     useEffect(() => {
-        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/user/firstName', {withCredentials: true})
+        axInst.get('user/firstName', {withCredentials: true})
             .then(response => {
                 setFirstName(response.data.firstName);
             })
             .catch(error => console.error(error));
-        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/contacts', {withCredentials: true})
+        axInst.get('contacts', {withCredentials: true})
         .then(response => {
             setContacts(response.data);
         })
         .catch(error => console.error(error));
-        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/jobs', {withCredentials: true})
+        axInst.get('jobs', {withCredentials: true})
             .then(response => {
                 const jobsWithSkillsPromises = response.data.map(job =>
-                    axios.get(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/jobs/${job.job_id}/skills`, {withCredentials: true})
+                    axInst.get(`jobs/${job.job_id}/skills`, {withCredentials: true})
                         .then(res => {
                             return { ...job, skills: res.data || [] }
                         })
@@ -40,7 +41,7 @@ export const HomePage = () => {
             .catch(error => {
                 console.error(error);
             });
-        axios.get('http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/skills', {withCredentials: true})
+        axInst.get('skills', {withCredentials: true})
         .then(response => {
             console.log(response.data)
             setSkills(response.data);
