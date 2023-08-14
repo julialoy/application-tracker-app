@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import './EditPages.css'
 
 export const EditSkillsPage = ({ targetSkill }) => {
@@ -26,18 +28,18 @@ export const EditSkillsPage = ({ targetSkill }) => {
     const editSkill = async (evt) => {
         evt.preventDefault();
         const changedSkill = {editSkillTitle, editSkillDesc};
-        const response = await fetch(`/edit-skill/${editSkillId}`, {
-            method: 'PUT',
-            body: JSON.stringify(changedSkill),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (response.status === 201) {
-            handleSkillsRedirect("Skill updated");
-        } else {
-            handleSkillsRedirect("Unable to update skill");
-        }
+        axInst.put(`edit-skill/${editSkillId}`, changedSkill, {withCredentials: true})
+            .then(response => {
+                if (response.status === 201) {
+                    handleSkillsRedirect("Skill updated");
+                } else {
+                    handleSkillsRedirect("Unable to update skill");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                handleSkillsRedirect("Unable to update skill: Internal server error");
+            });
     }
 
     return (

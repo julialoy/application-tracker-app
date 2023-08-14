@@ -1,21 +1,28 @@
 import 'dotenv/config';
+import { createRequire } from 'module';
 import * as model from './model.mjs';
 import express from 'express';
 import crypto from 'crypto';
 import expressSession from 'express-session';
 
+const require = createRequire(import.meta.url);
 const secret = crypto.randomBytes(64).toString('hex');
-console.log(secret);
 
 // Set up environment and constants
 const PORT = process.env.PORT;
+const cors = require('cors');
+const corsOptions = {
+    origin: 'http://ec2-44-215-13-166.compute-1.amazonaws.com',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+};
 const app = express();
+app.use(cors(corsOptions));
 app.use(express.json());
-
 app.use(expressSession({
     secret: secret,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
   }));
 
 // Validate password per specs:
@@ -56,8 +63,8 @@ function ensureLoggedIn(req, res, next) {
 }
 
 // Routes here
-
-app.post('/register', (req, res) => {
+app.options('*', cors());   // Enables CORS preflight for all routes: https://expressjs.com/en/resources/middleware/cors.html
+app.post('/api/register', (req, res) => {
    const userFirstName = req.body.firstName;
    const userLastName = req.body.lastName;
    const email = req.body.email;
@@ -71,8 +78,7 @@ app.post('/register', (req, res) => {
                 } else {
                     // Upon successful registration user is logged in
                     req.session.user = result;
-                    res.status(201).setHeader('content-type', 'application/json')
-                        .json({user: result});
+                    res.status(201).send(req.session.sessionID);
                 }
                })
            .catch(error => {
@@ -85,18 +91,17 @@ app.post('/register', (req, res) => {
    }
 });
 
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
     const email = req.body.username;
     const password = req.body.password;
-
-    console.log(`Username: ${email}, Password: ${password}`); // Logging the username and password
 
     try {
         model.authenticateUser(email, password)
             .then(user => {
                 if (user) {
                     req.session.user = user;
-                    res.redirect('/');
+                    res.status(200).setHeader('content-type', 'application/json')
+                        .json({ status: 200, message: 'Login successful' });
                 } else {
                     res.status(400).json({ error: 'Authentication failed.' });
                 }
@@ -112,30 +117,33 @@ app.post('/login', (req, res) => {
 });
 
 
-app.get('/user/firstName', (req, res) => {
+app.get('/api/user/firstName', (req, res) => {
     if (req.session.user && req.session.user.first_name) { 
-        res.json({ firstName: req.session.user.first_name }); 
+        res.json({ firstName: req.session.user.first_name });
     } else {
         res.status(400).json({ error: 'User not logged in.' });
     }
 });
 
-app.post('/logout', ensureLoggedIn, (req, res) => {
+app.get('/api/logout', ensureLoggedIn, (req, res) => {
    try {
        req.session.user = null;
-       res.redirect('/');
+       // res.status(200).setHeader('content-type', 'application/json')
+       //     .json({ status: 200, message: "Logout successful" });
+       res.status(200).send(req.session.sessionID);
    } catch (err) {
        res.status(500).json({error: "Error during logout."});
    }
 });
 
 app.get('/', (req, res) => {
-    res.render('home');
+    res.status(200);
 });
 
 // Fetch all jobs for the logged in user
-app.get('/jobs', ensureLoggedIn, (req, res) => {
+app.get('/api/jobs', ensureLoggedIn, (req, res) => {
     const userId = req.session.user.user_id;
+    console.log(`Jobs user id: ${userId}`);
     model.getJobs(userId)
         .then(result => {
             if (result.error) {
@@ -153,7 +161,7 @@ app.get('/jobs', ensureLoggedIn, (req, res) => {
 });
 
 // Fetch skills for a specific job
-app.get('/jobs/:job_id/skills', ensureLoggedIn, (req, res) => {
+app.get('/api/jobs/:job_id/skills', ensureLoggedIn, (req, res) => {
     const { job_id } = req.params;
     const user_id = req.session.user.user_id;
     model.getJobSkills(user_id, job_id)
@@ -173,7 +181,7 @@ app.get('/jobs/:job_id/skills', ensureLoggedIn, (req, res) => {
 });
 
 // Retrieve specific job
-app.get('/jobs/:job_id', ensureLoggedIn, (req, res) => {
+app.get('/api/jobs/:job_id', ensureLoggedIn, (req, res) => {
     const { job_id } = req.params;
     const user_id = req.session.user.user_id;
     model.findJob(user_id, job_id)
@@ -193,7 +201,7 @@ app.get('/jobs/:job_id', ensureLoggedIn, (req, res) => {
 });
 
 // Create a new job
-app.post('/jobs', ensureLoggedIn, (req, res) => {
+app.post('/api/jobs', ensureLoggedIn, (req, res) => {
     const { job_title, company, location, status, date_applied, notes, skills } = req.body;
     const user_id = req.session.user.user_id;
     model.addJob(job_title, company, location, status, date_applied, notes, skills, user_id)
@@ -213,7 +221,7 @@ app.post('/jobs', ensureLoggedIn, (req, res) => {
 });
 
 // Update an existing job
-app.put('/jobs/edit/:job_id', ensureLoggedIn, async (req, res) => {
+app.put('/api/jobs/edit/:job_id', ensureLoggedIn, async (req, res) => {
     const { job_id } = req.params;
     const { job_title, company, location, status, date_applied, notes, skills } = req.body;
     const user_id = req.session.user.user_id;
@@ -235,7 +243,7 @@ app.put('/jobs/edit/:job_id', ensureLoggedIn, async (req, res) => {
 
 
 // Delete an existing job
-app.delete('/jobs/:job_id', ensureLoggedIn, (req, res) => {
+app.delete('/api/jobs/:job_id', ensureLoggedIn, (req, res) => {
     const { job_id } = req.params;
     const user_id = req.session.user.user_id;
     model.deleteJob(job_id, user_id)
@@ -254,7 +262,7 @@ app.delete('/jobs/:job_id', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.get('/contacts', (req, res) => {
+app.get('/api/contacts', ensureLoggedIn, (req, res) => {
     const user_id = req.session.user.user_id;
     model.getContacts(user_id)
         .then(result => {
@@ -272,7 +280,7 @@ app.get('/contacts', (req, res) => {
         });
 });
 
-app.post('/contacts',ensureLoggedIn,(req, res) => {
+app.post('/api/contacts', ensureLoggedIn, (req, res) => {
     const { first_name, last_name, email, company, notes } = req.body;
     const user_id = req.session.user.user_id;
     model.addContact(first_name, last_name, email, company, notes, user_id)
@@ -291,7 +299,7 @@ app.post('/contacts',ensureLoggedIn,(req, res) => {
         });
 });
 
-app.put('/contacts/edit/:contact_id', ensureLoggedIn,(req, res) => {
+app.put('/api/contacts/edit/:contact_id', ensureLoggedIn,(req, res) => {
     const { contact_id } = req.params;
     const { first_name, last_name, email, company, notes } = req.body;
     const user_id = req.session.user.user_id;
@@ -311,7 +319,7 @@ app.put('/contacts/edit/:contact_id', ensureLoggedIn,(req, res) => {
         });
 });
 
-app.get('/contacts/:contact_id', ensureLoggedIn, (req, res) => {
+app.get('/api/contacts/:contact_id', ensureLoggedIn, (req, res) => {
     const { contact_id } = req.params;
     const user_id = req.session.user.user_id;
     model.findContact(contact_id, user_id)
@@ -330,7 +338,7 @@ app.get('/contacts/:contact_id', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.delete('/contacts/:contact_id',ensureLoggedIn, (req, res) => {
+app.delete('/api/contacts/:contact_id',ensureLoggedIn, (req, res) => {
     const { contact_id } = req.params;
     const user_id = req.session.user.user_id;
     model.deleteContact(contact_id, user_id)
@@ -349,7 +357,7 @@ app.delete('/contacts/:contact_id',ensureLoggedIn, (req, res) => {
         });
 });
 
-app.get('/skills', ensureLoggedIn, (req, res ) => {
+app.get('/api/skills', ensureLoggedIn, (req, res ) => {
     const userId = req.session.user.user_id;
     model.getSkills(userId)
         .then(result => {
@@ -367,7 +375,7 @@ app.get('/skills', ensureLoggedIn, (req, res ) => {
         });
 });
 
-app.post('/skills', ensureLoggedIn, (req, res) => {
+app.post('/api/skills', ensureLoggedIn, (req, res) => {
     const skillTitle = req.body.newSkillTitle;
     const skillDesc = req.body.newSkillDesc;
     const userId = req.session.user.user_id;
@@ -387,7 +395,7 @@ app.post('/skills', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.post('/search-skill', ensureLoggedIn, (req, res) => {
+app.post('/api/search-skill', ensureLoggedIn, (req, res) => {
     const userId = req.session.user.user_id;
     const searchName = req.body.skillName.trimStart().trimEnd().toLowerCase();
     model.findSkill(userId, searchName)
@@ -406,7 +414,7 @@ app.post('/search-skill', ensureLoggedIn, (req, res) => {
        });
 });
 
-app.put('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
+app.put('/api/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
     const skillId = req.params.skill_id;
     const editSkillTitle = req.body.editSkillTitle;
     const editSkillDesc = req.body.editSkillDesc;
@@ -426,7 +434,7 @@ app.put('/edit-skill/:skill_id', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.delete('/skills/:skill_id', ensureLoggedIn, (req, res) => {
+app.delete('/api/skills/:skill_id', ensureLoggedIn, (req, res) => {
    const skillId = req.params.skill_id;
    const userId = req.session.user.user_id;
    model.deleteSkill(skillId, userId)
@@ -445,7 +453,7 @@ app.delete('/skills/:skill_id', ensureLoggedIn, (req, res) => {
        });
 });
 
-app.get('/edit-profile/', ensureLoggedIn, (req, res) => {
+app.get('/api/edit-profile/', ensureLoggedIn, (req, res) => {
    const userId = req.session.user.user_id;
     model.getUserData(userId)
         .then(result => {
@@ -463,7 +471,7 @@ app.get('/edit-profile/', ensureLoggedIn, (req, res) => {
         });
 });
 
-app.post('/edit-profile/:user_id', ensureLoggedIn, (req, res) => {
+app.post('/api/edit-profile/:user_id', ensureLoggedIn, (req, res) => {
     const userId = req.params.user_id;
     const userFirstName = req.body.userFirstName;
     const userLastName = req.body.userLastName;

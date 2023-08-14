@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import Modal from 'react-modal';
+import axInst from '../axios_instance';
 import Navbar from '../components/navbar/Navbar';
 import SkillsHeader from '../components/Skills/SkillsHeader';
 import Skills from '../components/Skills/Skills';
 import SkillSearch from '../components/Skills/SkillSearch';
-import Modal from 'react-modal';
-import axios from 'axios';
+// import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './SkillsPage.css';
@@ -30,13 +31,18 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }
 
     const onSkillDelete = async (skillId) => {
-        const response = await fetch(`/skills/${skillId}`, {method: 'DELETE'});
-        if (response.status === 204) {
-            alert("Skill deleted");
-            fetchAllSkills();
-        } else {
-            alert("Unable to delete skill");
-        }
+        axInst.delete(`skills/${skillId}`, {withCredentials: true})
+            .then(response => {
+                if (response.status === 204) {
+                    fetchAllSkills();
+                } else {
+                    alert("Unable to delete skill");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Unable to delete skill: Internal server error");
+            });
     }
 
     // Loading of skills adapted from OSU CS 290 course material and other examples
@@ -55,31 +61,39 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }
 
     const fetchAllSkills = async () => {
-        const response = await fetch('/skills', {method: 'GET'});
-        const skillsData = await response.json();
-        setSkillsList(skillsData);
+        // const response = await fetch('/skills', {method: 'GET', mode: 'cors'});
+        // const skillsData = await response.json();
+        // setSkillsList(skillsData);
+        axInst.get('skills', {withCredentials: true})
+            .then(response => {
+                setSkillsList(response.data);
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     const addNewSkill = async (evt) => {
         evt.preventDefault()
         const newSkill = {newSkillTitle, newSkillDesc};
-        const response = await fetch('/skills', {
-            method: 'POST',
-            body: JSON.stringify(newSkill),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (response.status === 201) {
-            setIsAddOpen(false);
-            alert("Skill added");
-            resetSkillForm();
-            fetchAllSkills();
-        } else {
-            setIsAddOpen(false);
-            alert("Unable to add skill");
-            resetSkillForm();
-        }
+        axInst.post('skills', newSkill, {withCredentials: true})
+            .then(response => {
+                if (response.status === 201) {
+                    setIsAddOpen(false);
+                    alert("Skill added");
+                    resetSkillForm();
+                    fetchAllSkills();
+                } else {
+                    setIsAddOpen(false);
+                    alert("Unable to add skill");
+                    resetSkillForm();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Unable to add skill: Internal server error");
+                resetSkillForm();
+            });
     }
 
     useEffect(() => {
@@ -87,7 +101,7 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }, []);
 
     useEffect(() => {
-        axios.get('/user/firstName')
+        axInst.get('user/firstName', {withCredentials: true})
             .then(response => {
                 setFirstName(response.data.firstName);
             })

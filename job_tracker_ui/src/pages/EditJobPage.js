@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import './EditPages.css'
 
 export const EditJobPage = () => {
@@ -23,7 +24,7 @@ export const EditJobPage = () => {
     };
 
     useEffect(() => {
-        axios.get('/skills')
+        axInst.get('skills', {withCredentials: true})
             .then(response => {
                 setSkills(response.data);
             })
@@ -33,7 +34,7 @@ export const EditJobPage = () => {
     }, []);
 
     useEffect(() => {
-        axios.get(`/jobs/${id}`)
+        axInst.get(`jobs/${id}`, {withCredentials: true})
             .then(response => {
                 const job = response.data;
                 setNewJob({
@@ -53,7 +54,7 @@ export const EditJobPage = () => {
 
     const updateJob = (event) => {
         event.preventDefault();
-        axios.put(`/jobs/edit/${id}`, newJob)
+        axInst.put(`jobs/edit/${id}`, newJob, {withCredentials: true})
             .then(response => {
                 navigate('/jobs');
             })

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import Navbar from '../components/navbar/Navbar';
 import './EditPages.css'
 
@@ -31,15 +33,21 @@ export const ProfilePage = ( )  => {
     }
 
     const fetchUserInfo = async () => {
-        const response = await fetch(`/edit-profile`, {method: 'GET'});
-        const data = await response.json();
-        if (response.status === 200) {
-            setCurrUser(data.user);
-            setUserInfo(data.user);
-        } else {
-            alert(`Unable to retrieve profile information: ${response.error}`);
-            navigate('/');
-        }
+        axInst.get('edit-profile', {withCredentials: true})
+            .then(response => {
+                if (response.status === 200) {
+                    setCurrUser(response.data.user);
+                    setUserInfo(response.data.user);
+                } else {
+                    alert(`Unable to retrieve profile information: ${response.data.error}`);
+                    navigate('/');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Unable to retrieve profile information: Internal server error");
+                navigate('/');
+            })
     }
 
     const resetProfileForm = () => {
@@ -66,22 +74,22 @@ export const ProfilePage = ( )  => {
         }
 
         const changedUser = {userFirstName, userLastName, userEmail, newPassword};
-        const response = await fetch(`/edit-profile/${userId}`, {
-            method: 'POST',
-            body: JSON.stringify(changedUser),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (response.status === 201) {
-            alert("Profile updated!");
-            fetchUserInfo();
-            navigate('/edit-profile');
-        } else {
-            const serverResp = await response.json();
-            alert(`Unable to update profile: ${serverResp.error}`);
-            resetProfileForm();
-        }
+        axInst.post(`edit-profile/${userId}`, changedUser, {withCredentials: true})
+            .then(response => {
+                if (response.status === 201) {
+                    alert("Profile updated!");
+                    fetchUserInfo();
+                    navigate('/edit-profile');
+                } else {
+                    alert(`Unable to update profile: ${response.data.error}`);
+                    resetProfileForm();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Unable to update profile: Internal server error");
+                resetProfileForm();
+            });
     }
 
     useEffect( () => {

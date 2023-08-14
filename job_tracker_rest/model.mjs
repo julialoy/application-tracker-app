@@ -10,13 +10,14 @@ app.use(express.json());
 const require = createRequire(import.meta.url);
 const bcrypt = require('bcryptjs');
 
-const { Pool } = require('pg');
+const Pool = require('pg-pool');
 const pool = new Pool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
+    ssl: { rejectUnauthorized: false },
     max: 10
 });
 
@@ -109,7 +110,8 @@ const countJobsPerSkill = async (skills) => {
     }
 }
 
-// Calculates percent of jobs that are tagged with a particular skill and adds that property to skills object
+// Calculates percent of jobs that are tagged with a particular skill and adds that
+// property to skills object
 const percentJobsPerSkill = async (userId, skills) => {
     const totalUserJobs = await getNumJobs(userId);
     for (let i = 0; i < skills.length; i++) {
@@ -135,7 +137,8 @@ const addUser = async (userEmail, userFirstName, userLastName, userPass) => {
 
     const hashedPass = await bcrypt.hash(userPass, 10);
     const addUserQuery = {
-        text: 'INSERT INTO "Users"(email, first_name, last_name, pass) VALUES($1, $2, $3, $4) RETURNING *',
+        text: 'INSERT INTO "Users"(email, first_name, last_name, pass) ' +
+            'VALUES($1, $2, $3, $4) RETURNING *',
         values: [userEmail, userFirstName, userLastName, hashedPass]
     };
     const result = await pool.query(addUserQuery);
@@ -197,7 +200,9 @@ const findJob = async (userId, jobId) => {
 // Creates new job and adds to database
 const addJob = async (jobTitle, company, location, status, dateApplied, notes, skills, userId) => {
     const addJobQuery = {
-        text: 'INSERT INTO "Jobs" (job_title, company, location, status, date_applied, notes, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        text: 'INSERT INTO "Jobs" (job_title, company, location, status, date_applied, notes, user_id) ' +
+            'VALUES ($1, $2, $3, $4, $5, $6, $7) ' +
+            'RETURNING *',
         values: [jobTitle, company, location, status, dateApplied, notes, userId]
     };
     const result = await pool.query(addJobQuery);
@@ -219,7 +224,9 @@ const addJob = async (jobTitle, company, location, status, dateApplied, notes, s
 // Updates existing job in database
 const editJob = async (jobTitle, company, location, status, dateApplied, notes, skills, jobId, userId) => {
     const editJobQuery = {
-        text: 'UPDATE "Jobs" SET job_title = $1, company = $2, location = $3, status = $4, date_applied = $5, notes = $6 WHERE job_id = $7 AND user_id = $8',
+        text: 'UPDATE "Jobs" ' +
+            'SET job_title = $1, company = $2, location = $3, status = $4, date_applied = $5, notes = $6 ' +
+            'WHERE job_id = $7 AND user_id = $8',
         values: [jobTitle, company, location, status, dateApplied, notes, jobId, userId]
     };
     try {
@@ -272,7 +279,9 @@ const getContacts = async (userId) => {
 // Creates a new contact for the given user
 const addContact = async (firstName, lastName, email, company, notes, userId) => {
     const addContactQuery = {
-        text: 'INSERT INTO "Contacts" (first_name, last_name, email, company, notes, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        text: 'INSERT INTO "Contacts" (first_name, last_name, email, company, notes, user_id) ' +
+            'VALUES ($1, $2, $3, $4, $5, $6) ' +
+            'RETURNING *',
         values: [firstName, lastName, email, company, notes, userId]
     };
     const result = await pool.query(addContactQuery);
@@ -286,7 +295,10 @@ const addContact = async (firstName, lastName, email, company, notes, userId) =>
 // Updates the given contact in the database
 const editContact = async (firstName, lastName, email, company, notes, contactId, userId) => {
     const editContactQuery = {
-        text: 'UPDATE "Contacts" SET first_name = $1, last_name = $2, email = $3, company = $4, notes = $5 WHERE contact_id = $6 AND user_id = $7 RETURNING *',
+        text: 'UPDATE "Contacts" ' +
+            'SET first_name = $1, last_name = $2, email = $3, company = $4, notes = $5 ' +
+            'WHERE contact_id = $6 AND user_id = $7 ' +
+            'RETURNING *',
         values: [firstName, lastName, email, company, notes, contactId, userId]
     };
     const result = await pool.query(editContactQuery);
@@ -406,12 +418,18 @@ const editProfile = async (userId, userFirstName, userLastName, userEmail, newPa
     if (newPassword !== '') {
         const hashedPass = await bcrypt.hash(newPassword, 10);
         editUserQuery = {
-            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4, pass = $5 WHERE user_id = $1 RETURNING "user_id", "first_name", "last_name", "email"',
+            text: 'UPDATE "Users" ' +
+                'SET first_name = $2, last_name = $3, email = $4, pass = $5 ' +
+                'WHERE user_id = $1 ' +
+                'RETURNING "user_id", "first_name", "last_name", "email"',
             values: [userId, userFirstName, userLastName, userEmail, hashedPass]
         }
     } else {
         editUserQuery = {
-            text: 'UPDATE "Users" SET first_name = $2, last_name = $3, email = $4 WHERE user_id = $1 RETURNING "user_id", "first_name", "last_name", "email"',
+            text: 'UPDATE "Users" ' +
+                'SET first_name = $2, last_name = $3, email = $4 ' +
+                'WHERE user_id = $1 ' +
+                'RETURNING "user_id", "first_name", "last_name", "email"',
             values: [userId, userFirstName, userLastName, userEmail]
         }
     }
@@ -426,7 +444,9 @@ const editProfile = async (userId, userFirstName, userLastName, userEmail, newPa
 // Retrieve user information
 const getUserData = async (userId) => {
     const userQuery = {
-        text: 'SELECT "user_id", "first_name", "last_name", "email" FROM "Users" WHERE user_id = $1',
+        text: 'SELECT "user_id", "first_name", "last_name", "email" ' +
+            'FROM "Users" ' +
+            'WHERE user_id = $1',
         values: [userId]
     }
     const result = await pool.query(userQuery);
@@ -438,5 +458,7 @@ const getUserData = async (userId) => {
 }
 
 export {
-    pool, addContact, addJob, addSkill, addUser, authenticateUser, deleteContact, deleteJob, deleteSkill, editContact, editJob, editSkill, findContact, findJob, findSkill, getContacts, getJobs, getJobSkills, getSkills, getUserData, editProfile
+    pool, addContact, addJob, addSkill, addUser, authenticateUser, deleteContact, deleteJob,
+    deleteSkill, editContact, editJob, editSkill, findContact, findJob, findSkill, getContacts,
+    getJobs, getJobSkills, getSkills, getUserData, editProfile
 };

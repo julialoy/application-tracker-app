@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Navbar from '../components/navbar/Navbar';
@@ -13,20 +14,20 @@ export const HomePage = () => {
     const [contacts, setContacts] = useState([]);
     
     useEffect(() => {
-        axios.get('/user/firstName')
+        axInst.get('user/firstName', {withCredentials: true})
             .then(response => {
                 setFirstName(response.data.firstName);
             })
             .catch(error => console.error(error));
-        axios.get('/contacts')
+        axInst.get('contacts', {withCredentials: true})
         .then(response => {
             setContacts(response.data);
         })
         .catch(error => console.error(error));
-        axios.get('/jobs')
+        axInst.get('jobs', {withCredentials: true})
             .then(response => {
-                const jobsWithSkillsPromises = response.data.map(job => 
-                    axios.get(`/jobs/${job.job_id}/skills`)
+                const jobsWithSkillsPromises = response.data.map(job =>
+                    axInst.get(`jobs/${job.job_id}/skills`, {withCredentials: true})
                         .then(res => {
                             return { ...job, skills: res.data || [] }
                         })
@@ -40,7 +41,7 @@ export const HomePage = () => {
             .catch(error => {
                 console.error(error);
             });
-        axios.get('/skills')
+        axInst.get('skills', {withCredentials: true})
         .then(response => {
             console.log(response.data)
             setSkills(response.data);

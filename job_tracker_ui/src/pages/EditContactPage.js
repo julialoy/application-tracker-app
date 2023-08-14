@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import './EditPages.css'
 
 export const EditContactPage = () => {
@@ -9,7 +10,7 @@ export const EditContactPage = () => {
     const { id } = useParams();
 
     useEffect(() => {
-        axios.get(`/contacts/${id}`)
+        axInst.get(`contacts/${id}`, {withCredentials: true})
             .then(response => {
                 setContact(response.data);
             })
@@ -20,7 +21,7 @@ export const EditContactPage = () => {
 
     const editingContact = (event) => {
         event.preventDefault();
-        axios.put(`/contacts/edit/${id}`, contact)
+        axInst.put(`contacts/edit/${id}`, contact, {withCredentials: true})
             .then(response => {
                 navigate('/contacts');
             })

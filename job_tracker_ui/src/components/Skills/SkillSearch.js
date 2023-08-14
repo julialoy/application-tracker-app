@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+// import axios from 'axios';
+import axInst from '../../axios_instance';
 import SkillResult from './SkillResult';
 
 export const SkillSearch = () => {
@@ -13,19 +15,21 @@ export const SkillSearch = () => {
     const handleSkillSearch = async (evt) => {
         evt.preventDefault();
         const skillToSearch = {skillName};
-        const results = await fetch('/search-skill', {
-            method: 'POST',
-            body: JSON.stringify(skillToSearch),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        if (results.status === 201) {
-            const jsonResults = await results.json();
-            setSearchResults(jsonResults);
-        } else {
-            setSearchResults([]);
-        }
+        axInst.post(
+            `search-skill`,
+            skillToSearch,
+            {withCredentials: true})
+            .then(response => {
+                if (response.status === 201) {
+                    setSearchResults(response.data);
+                } else {
+                    setSearchResults([]);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                setSearchResults([]);
+            });
     }
 
     return (
@@ -36,8 +40,10 @@ export const SkillSearch = () => {
                        value={skillName}
                        onChange={evt => setSkillName(evt.target.value)}
                 />
-                <button id="skillSearchBtn" type="submit">Search</button>
-                <button id="clearSearch" type="button" onClick={handleClearSearch}>Clear</button>
+                <div>
+                    <button id="skillSearchBtn" type="submit">Search</button>
+                    <button id="clearSearch" type="button" onClick={handleClearSearch}>Clear</button>
+                </div>
             </form>
             { searchResults.length > 0 ?
                 <div id="searchResults">

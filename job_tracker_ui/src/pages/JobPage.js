@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import Modal from 'react-modal';
+// import axios from 'axios';
+import axInst from '../axios_instance';
 import Navbar from '../components/navbar/Navbar';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import Modal from 'react-modal';
 import './JobPage.css';
 
 Modal.setAppElement(document.getElementById('root'));
@@ -29,11 +29,11 @@ function JobPage() {
 
     // fetch jobs from server
     useEffect(() => {
-        axios.get('/jobs')
+        axInst.get('jobs', {withCredentials: true})
             .then(response => {
                 // For each job, fetch its associated skills
                 const jobsWithSkillsPromises = response.data.map(job => 
-                    axios.get(`/jobs/${job.job_id}/skills`)
+                    axInst.get(`jobs/${job.job_id}/skills`, {withCredentials: true})
                         .then(res => {
                             return { ...job, skills: res.data || []}
                         })
@@ -52,7 +52,7 @@ function JobPage() {
 
     // fetch skills from server
     useEffect(() => {
-        axios.get('/skills')
+        axInst.get('skills', {withCredentials: true})
             .then(response => {
                 setSkills(response.data);
             })
@@ -62,7 +62,7 @@ function JobPage() {
     }, []);
 
     useEffect(() => {
-        axios.get('/user/firstName')
+        axInst.get('user/firstName', {withCredentials: true})
             .then(response => {
                 setFirstName(response.data.firstName);
             })
@@ -80,12 +80,12 @@ function JobPage() {
                 return matchedSkill ? matchedSkill.skill_id : null;
             }).filter(skillId => skillId !== null)
         };
-        const response = await axios.post('/jobs', jobData);
+        const response = await axInst.post('jobs', jobData, {withCredentials: true});
         if (response.status === 201) {
             setIsAddOpen(false);
             alert("Job added");
             resetJobForm();
-            const newJobWithSkills = await axios.get(`/jobs/${response.data.job_id}/skills`)
+            const newJobWithSkills = await axInst.get(`jobs/${response.data.job_id}/skills`, {withCredentials: true})
             .then(res => {
                 return { ...response.data, skills: res.data || []}
             })
@@ -99,7 +99,7 @@ function JobPage() {
 
     const deleteJob = (job_id) => {
         // delete request to delete a job
-        axios.delete(`/jobs/${job_id}`)
+        axInst.delete(`jobs/${job_id}`, {withCredentials: true})
             .then(response => {
                 // remove the deleted job from the jobs list
                 setJobs(jobs.filter((job) => job.job_id !== job_id));
@@ -113,7 +113,7 @@ function JobPage() {
     const updateJob = (event, job_id) => {
         event.preventDefault();
         // put request to update a job
-        axios.put(`/jobs/${job_id}`, editingJob)
+        axInst.put(`jobs/${job_id}`, editingJob)
             .then(response => {
                 // update the updated job in the jobs list
                 setJobs(jobs.map(job => job.job_id === job_id ? {...job, ...editingJob} : job));
@@ -173,9 +173,6 @@ function JobPage() {
             </div>
         );
     }
-    
-
-    
 
     return (
         <div>
@@ -262,7 +259,7 @@ function JobPage() {
                                     <td>{formatDate(job.date_applied)}</td>
                                     <td className="notes-cell">{job.notes}</td>
                                     <td>
-                                        <button className='edit-button' onClick={() => navigate(`/jobs/edit/${job.job_id}`)}>Edit</button>
+                                        <button className='edit-button' onClick={() => navigate(`http://ec2-44-215-13-166.compute-1.amazonaws.com:5000/api/jobs/edit/${job.job_id}`)}>Edit</button>
                                         <button className='delete-button' onClick={() => deleteJob(job.job_id)}>Delete</button>
                                     </td>
                                 </tr>

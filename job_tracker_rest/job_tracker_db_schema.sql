@@ -34,9 +34,7 @@ CREATE TABLE IF NOT EXISTS public."Skills"
     skill_title character varying(255) NOT NULL,
     skill_desc character varying(255),
     user_id serial NOT NULL,
-    PRIMARY KEY (skill_id),
-    CONSTRAINT skill_title UNIQUE (skill_title)
-        INCLUDE(skill_title)
+    PRIMARY KEY (skill_id)
 );
 
 CREATE TABLE IF NOT EXISTS public."Skills_Jobs"
