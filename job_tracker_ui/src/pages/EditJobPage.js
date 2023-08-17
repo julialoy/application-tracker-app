@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-// import axios from 'axios';
 import axInst from '../axios_instance';
 import './EditPages.css'
 
@@ -60,7 +59,6 @@ export const EditJobPage = () => {
             })
             .catch(error => {
                 console.error("Error from server: ", error);
-                console.error(error);
             });
     };
 

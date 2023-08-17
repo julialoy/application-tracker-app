@@ -53,7 +53,6 @@ function ensureLoggedIn(req, res, next) {
     if (req.session.user) {
         // User is logged in, proceed to the next middleware/route handler
         console.log("User is logged in");
-        console.log(req.session.user.user_id);
         next();
     } else {
         // User is not logged in
@@ -128,8 +127,6 @@ app.get('/api/user/firstName', (req, res) => {
 app.get('/api/logout', ensureLoggedIn, (req, res) => {
    try {
        req.session.user = null;
-       // res.status(200).setHeader('content-type', 'application/json')
-       //     .json({ status: 200, message: "Logout successful" });
        res.status(200).send(req.session.sessionID);
    } catch (err) {
        res.status(500).json({error: "Error during logout."});

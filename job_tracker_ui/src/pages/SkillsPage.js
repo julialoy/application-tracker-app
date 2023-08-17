@@ -7,7 +7,6 @@ import Navbar from '../components/navbar/Navbar';
 import SkillsHeader from '../components/Skills/SkillsHeader';
 import Skills from '../components/Skills/Skills';
 import SkillSearch from '../components/Skills/SkillSearch';
-// import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './SkillsPage.css';
@@ -45,8 +44,8 @@ export const SkillsPage = ({ setTargetSkill }) => {
             });
     }
 
-    // Loading of skills adapted from OSU CS 290 course material and other examples
-    // available in the React documentation
+    // Loading of skills adapted from OSU CS290 course material examples
+    // and other examples available in the React documentation
     const resetSkillForm = () => {
         setNewSkillTitle('');
         setNewSkillDesc('');
@@ -61,9 +60,6 @@ export const SkillsPage = ({ setTargetSkill }) => {
     }
 
     const fetchAllSkills = async () => {
-        // const response = await fetch('/skills', {method: 'GET', mode: 'cors'});
-        // const skillsData = await response.json();
-        // setSkillsList(skillsData);
         axInst.get('skills', {withCredentials: true})
             .then(response => {
                 setSkillsList(response.data);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Modal from 'react-modal';
-// import axios from 'axios';
 import axInst from '../axios_instance';
 import Navbar from '../components/navbar/Navbar';
 import Header from '../components/Header';
@@ -123,7 +122,6 @@ function JobPage() {
             })
             .catch(error => {
                 console.error("Error from server: ", error);  // log any errors
-                console.error(error);
             });
     };
 

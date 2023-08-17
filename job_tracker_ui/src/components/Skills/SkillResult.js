@@ -1,5 +1,5 @@
 // The structure of this page was based on and modified examples from OSU CS290
-// as well as from official React documentation
+// course materials as well as from official React documentation
 import React from 'react';
 
 export const SkillResult = ({ result }) => {

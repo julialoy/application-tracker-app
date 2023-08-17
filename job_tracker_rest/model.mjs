@@ -1,4 +1,4 @@
-// bcrypt hash and check functions based on examples from bcryptjs documentation:
+// bcrypt hash and check usage based on examples from bcryptjs documentation:
 // https://github.com/dcodeIO/bcrypt.js/blob/master/README.md
 import 'dotenv/config';
 import { createRequire } from 'module';

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
 import axInst from '../axios_instance';
 import Navbar from '../components/navbar/Navbar';
 import './EditPages.css'

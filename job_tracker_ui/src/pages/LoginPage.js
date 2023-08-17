@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import './RegisterPage.css';
-// import axios from 'axios';
 import axInst from "../axios_instance";
 
 export const LoginPage = ( ) => {
